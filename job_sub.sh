@@ -4,7 +4,7 @@
 #SBATCH -e AWSOMR_rt.e%j                        # Output
 #SBATCH -J AWSOMR_rt                            # Job name
 #SBATCH --time=24:00:00
-#####   Job script for the SWMF solar-helio realtime simulation.
+#####   SWMF solar-helio realtime simulation, steady-state
 #####   C.MERAL 07/2023
 #####            
 #####   Submit for run with sbatch job.sub
@@ -15,8 +15,10 @@ module load intel-oneapi-compilers/2024.1.0-gcc-11.4.1-imjimv2
 module load openmpi/4.1.6-oneapi-2024.1.0-uqcq2or
 export MPICC_CC=icc
 export MPICXX_CXX=icpc
+
 #Fix stack size issue
 ulimit -s unlimited
+
 SWMF_dir=`pwd`
 echo "SWMF dir: $SWMF_dir"
 RUNDIR=$SWMF_dir/run_realtime
@@ -47,7 +49,7 @@ tar -xzvf submission.tgz
 mv *.fits endmagnetogram
 python3 remap_magnetogram.py endmagnetogram fitsfile
 #Calculate the field harmonics needed to run the SWMF with fitsfile.out
-./HARMONICS.exe |tee harmonics.log_`date +%y%m%d_%H%M`
+./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
 #Origin Magnetogram becomes endmagnetogram
 mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 
@@ -56,7 +58,7 @@ mpiexec -n 8 ./CONVERTHARMONICS.exe > convert.log_`date +%y%m%d_%H%M`
 mv harmonics_bxyz.out ../harmonics_new_bxyz.out
 
 #Copy the PARAM.tmp file
-cp $SWMF_dir/THREAD/PARAM.in.realtime.SCIH_threadbc PARAM.tmp
+cp $SWMF_dir/AWSRT/PARAM.in.realtime.SCIH_threadbc PARAM.tmp
 #Convert it as PARAM.in with the proper start time and include files
 $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 #Test the format of  PARAM.in file

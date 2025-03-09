@@ -85,14 +85,8 @@ T			DoPlotThreads
 T			DoTRCorrection
 T			UsePlanarTriangles
 
-#POYNTINGFLUX
-1.0e6			PoyntingFluxPerBSi
-
-#CORONALHEATING
-turbulentcascade		TypeCoronalHeating
-1.5e5			LperpTimesSqrtBSi
-0.0			rMinWaveReflection
-F			UseReynoldsDecomposition
+#UNCLUDE
+CORONALHEATING.in
 
 #HEATPARTITIONING
 stochasticheating		TypeHeatPartitioning
@@ -441,16 +435,8 @@ T			UseTvdReschange
 #USERSWITCH
 +init			StringSwitch
 
-#CORONALHEATING
-turbulentcascade		TypeCoronalHeating
-1.5e5			LperpTimesSqrtBSi
-0.0			rMinWaveReflection
-F			UseReynoldsDecomposition
-
-#HEATPARTITIONING
-stochasticheating		TypeHeatPartitioning
-0.21			StochasticExponent
-0.18			StochasticAmplitude
+#INCLUDE
+CORONALHEATING.in
 
 #SCHEME
 1			nOrder
