@@ -1,2 +1,100 @@
 # AWSRT
-collection of scripts and input files to run the SWMF software in real time on the AWS cluster
+collection of scripts and input files to run the SWMF software
+in real time on the AWS cluster
+=================================
+Make a new SWMF directory on AWS cluster and adapt it for
+real time simulation.
+
+Use gitclone script in /data/ANY_SWMF_DISTRIBUTION/share/Scripts/gitclone,
+where ANY_SWMF_DISTRIBUTION is any SWMF distribution on the AWS cluster.
+If not available, use the short version of this script:
+----------------------gitclone------------------------
+#!/usr/bin/perl -s
+
+my $Help = ($h or $help);
+my $Sleep = ($s or $sleep);
+my $History = $history;
+
+use strict;
+
+my $swmf_software     = "git\@github.com:SWMFsoftware";
+
+# The project name should be all capitalized.
+my %url = (
+    "BATSRUS.JL"         => "https://github.com/henry2004y",
+    "GITM"               => "git\@github.com:GITMCode",
+    "MGITM"              => "git\@github.com:dpawlows",
+    "VAC"                => "https://github.com/gtoth-umich",
+    "VISANAMATLAB"       => "https://github.com/henry2004y",
+    "ESMF"               => "https://github.com/esmf-org",
+    "IPE"                => "git\@github.com:sword-swx-coe",
+    "COMIO"              => "git\@github.com:NOAA-SWPC"
+    );
+
+my @repo = ("SWMF, AMPS, BATSRUS, CIMI, FSAM, FLEKS, GITM2, MGITM, MFLAMPA, PWOM ...", 
+            sort keys %url);
+
+my $project = $ARGV[0]; $project =~ s/\.git$//;
+
+my $url = ($url{uc($project)} or $swmf_software);
+
+$ARGV[0] .= " --depth 1 --no-single-branch"
+
+my $command = "git clone $url/".join(" ", @ARGV);
+
+print "$command\n";
+`$command`;
+
+exit 0;
+-----------------should be made executable-------------------
+To clone SWMF from github, in /data/folder do
+
+ANY_SWMF_DISTRIBUTION/share/Scripts/gitclone SWMF NEW_SWMF_DISTRIBUTION
+cd NEW_SWMF_DISTRIBUTION
+./Config.pl -install
+share/Scripts/gitclone AWSRT
+cp AWSRT/*.sh .
+=======NEW_SWMF_DISTRIBUTION is ready for real-time simulation=========
+
+===========
+Install or re-install SWMF code
+May only be done when the real-time simulation does not run
+(before installing, the newest version may be pulled from repository:
+share/Scripts/gitall pull):
+
+./install_AWSOM_RT_on_AWS.sh
+========== SWMF is now installed or reinstalled=======================
+
+==========
+1. Start real-time simulation (from scratch or after interruption for
+   more than 36 hours).
+
+sbathch --wait -p ondemand job_sub.sh
+
+The directory run_realtime is created (current directory run_realtime is
+removed and its content is lost). Steady-state solar atmosphere is modeled
+corresponing to the latest magnetogram
+
+2. Restart real-time simulation (applied after start real-time simulation -
+   see item 1 - or after more than two hours interruption in continuous
+   simulation). Stops after the simulation with the latest magnetogram
+   finishes before the next magnetogram is available).
+
+sbathch --wait -p ondemand job_restart.sh
+
+3. Recurrent real-time simulation. Continuously gets 7*24 new hourly
+   magnetograms, advances the boundary condition for the solar magnetic
+   field and advances the state of solar atmosphere matching this boundary
+   condition
+
+sbathch --wait -p ondemand job_recurrent.sh
+=============== Simulation starts/restarts=====
+
+=============
+!!!!To stop simulation!!!!
+
+touch run_realtime/AWSOMRT.STOP
+
+Reaction time may be ap to an hour (for job_recurrent.sh) or a few hours
+(for job_restart.sh).
+=============
