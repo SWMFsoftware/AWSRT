@@ -87,6 +87,8 @@ do
 		exit 0
 	    fi
 	    ./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
+	    cat IH/IO2/sat_earth_*.sat>sat_earth.sat
+	    cat IH/IO2/sat_sta_*.sat>sat_sta.sat
 	    rm -rf RESTART_n000000
 	    ./Restart.pl -v
 	done
