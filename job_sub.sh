@@ -1,5 +1,5 @@
 #!/bin/bash      
-#SBATCH -n 216                                  # Number of tasks
+#SBATCH -n 192                                  # Number of tasks
 #SBATCH -o AWSOMR_rt.o%j                        # Output
 #SBATCH -e AWSOMR_rt.e%j                        # Output
 #SBATCH -J AWSOMR_rt                            # Job name
@@ -54,7 +54,7 @@ python3 remap_magnetogram.py endmagnetogram fitsfile
 mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 
 #Convert harmonics
-mpiexec -n 8 ./CONVERTHARMONICS.exe > convert.log_`date +%y%m%d_%H%M`
+mpiexec -n 16 ./CONVERTHARMONICS.exe > convert.log_`date +%y%m%d_%H%M`
 mv harmonics_bxyz.out ../harmonics_new_bxyz.out
 
 #Copy the PARAM.tmp file
@@ -67,7 +67,7 @@ Scripts/TestParam.pl -F $RUNDIR/PARAM.in
 
 # run SWMF models
 cd $RUNDIR
-mpiexec -n 216 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+mpiexec -n 192 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
 ./Restart.pl -v
 cd $SWMF_dir
 exit 0
