@@ -1,9 +1,9 @@
 #!/bin/bash      
-#SBATCH -n 324                                  # Number of tasks
+#SBATCH -n 192                                  # Number of tasks
 #SBATCH -o AWSOMR_rt.o%j                        # Output
 #SBATCH -e AWSOMR_rt.e%j                        # Output
 #SBATCH -J AWSOMR_rt                            # Job name
-#SBATCH --time=24:00:00
+#SBATCH --time=180:00:00
 #####   Job script for the SWMF solar-helio realtime simulation.
 #####   C.MERAL 07/2023
 #####            
@@ -22,40 +22,75 @@ echo "SWMF dir: $SWMF_dir"
 RUNDIR=$SWMF_dir/run_realtime
 echo "Run dir: $RUNDIR"
 PYTHON3=/usr/local/bin/python3
-
-cd $RUNDIR
-mv PARAM.in PARAM.in_`date +%y%m%d_%H%M`
-rm -f PARAM.in_orig_
-echo "Before restarting real-time simulation remove start magnetogram"
-rm -f harmonics_bxyz.out
-mv  harmonics_new_bxyz.out harmonics_bxyz.out
-echo "Download new magnetogram"
-cd $SWMF_dir
-python3 get_latest_magnetogram.py
-cd $RUNDIR/SC
-rm -f STARTMAGNETOGRAMTIME.in PARAM.tmp
-rm -f *.fits.gz *.fits harmonics.log* fitsfile_01.out endmagnetogram*
-cp ENDMAGNETOGRAMTIME.in STARTMAGNETOGRAMTIME.in
-tar -xzvf submission.tgz
-mv *.fits endmagnetogram
-python3 remap_magnetogram.py endmagnetogram fitsfile
-#Calculate the
-./HARMONICS.exe |tee harmonics.log_`date +%y%m%d_%H%M`
-#Origin Magnetogram becomes endmagnetogram
-mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
-
-#Copy the PARAM.tmp file
-cp $SWMF_dir/THREAD/PARAM.in.realtime.restart PARAM.tmp
-#Convert it as PARAM.in with the proper start time and include files
-$SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
-#Test the format of  PARAM.in file
-cd $SWMF_dir
-Scripts/TestParam.pl -F $RUNDIR/PARAM.in
-# run SWMF models
-cd $RUNDIR
-mpiexec -n 324 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
-./PostProc.pl -n=16 #-M -cat RESULTS_`date +%y%m%d_%H%M`
-rm -rf RESTART_n* RESTART.in
-./Restart.pl -v
-cd $SWMF_dir
+#
+##### Remove stop files
+rm -f $RUNDIR/AWSOMRT.STOP $RUNDIR/SC/AWSOMRT.STOP 
+for iDay in 1 2 3 4 5 6 7
+do
+    for M in AM PM
+    do
+	for iHour in 1 2 3 4 5 6 7 8 9 10 11 12
+	do
+	    cd $RUNDIR
+	    if [ -f "AWSOMRT.STOP" ]; then
+		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
+		echo "Find AWSOMRT.STOP in $RUNDIR"
+		exit 0
+	    fi
+	    mv PARAM.in PARAM.in_`date +%y%m%d_%H%M`
+	    rm -f PARAM.in_orig_
+	    rm -f harmonics_bxyz.out
+	    mv  harmonics_new_bxyz.out harmonics_bxyz.out
+	    cd $RUNDIR/SC
+	    rm -f STARTMAGNETOGRAMTIME.in PARAM.tmp *.fits.gz *.fits
+	    rm -f harmonics.log* fitsfile_01.out endmagnetogram*
+	    mv ENDMAGNETOGRAMTIME.in STARTMAGNETOGRAMTIME.in
+	    cd $SWMF_dir
+	    python3 get_latest_magnetogram.py
+	    cd $RUNDIR/SC
+	    tar -xzvf submission.tgz
+	    mv *.fits endmagnetogram
+	    python3 remap_magnetogram.py endmagnetogram fitsfile
+	    ./HARMONICS.exe |tee harmonics.log_`date +%y%m%d_%H%M`
+	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
+	    while [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
+	    do
+		if [ -f "AWSOMRT.STOP" ]; then
+		    rm -f ENDMAGNETOGRAMTIME.in
+		    mv STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
+		    echo "Find AWSOMRT.STOP in $RUNDIR/SC"
+		    exit 0
+		fi
+		sleep 300
+		cd $SWMF_dir
+		python3 get_latest_magnetogram.py
+		cd $RUNDIR/SC
+		tar -xzvf submission.tgz
+		mv *.fits endmagnetogram
+		python3 remap_magnetogram.py endmagnetogram fitsfile
+		./HARMONICS.exe > harmonics.log_`date +%y%m%d_%H%M`
+		mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
+	    done
+	    cp $SWMF_dir/AWSRT/PARAM.in.realtime.restart PARAM.tmp
+	    #Convert it as PARAM.in
+	    $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
+	    #Test the format of  PARAM.in file
+	    cd $SWMF_dir
+	    Scripts/TestParam.pl -F $RUNDIR/PARAM.in
+	    cd $RUNDIR
+	    mpiexec -n 192 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+	    if [ !-f SWMF.SUCCESS ]; then
+		rm -f harmonics_new_bxyz.out
+		mv harmonics_bxyz.out harmonics_new_bxyz.out
+		rm -f SC/ENDMAGNETOGRAMTIME.in
+		mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
+		exit 0
+	    fi
+	    ./PostProc.pl -n=16
+	    rm -rf RESTART_n000000
+	    ./Restart.pl -v
+	done
+    done
+done
+./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
 exit 0
