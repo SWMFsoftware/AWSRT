@@ -24,7 +24,7 @@ echo "Run dir: $RUNDIR"
 PYTHON3=/usr/local/bin/python3
 #
 ##### Remove stop files
-rm -f #RUNDIR/AWSOMRT.STOP #RUNDIR/SC/AWSOMRT.STOP 
+rm -f $RUNDIR/AWSOMRT.STOP $RUNDIR/SC/AWSOMRT.STOP 
 for iDay in 1 2 3 4 5 6 7
 do
     for M in AM PM
