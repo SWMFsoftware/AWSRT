@@ -1,5 +1,5 @@
 #!/bin/bash      
-#SBATCH -n 216                                  # Number of tasks
+#SBATCH -n 128                                  # Number of tasks
 #SBATCH -o AWSOMR_rt.o%j                        # Output
 #SBATCH -e AWSOMR_rt.e%j                        # Output
 #SBATCH -J AWSOMR_rt                            # Job name
@@ -51,7 +51,7 @@ do
 	    tar -xzvf submission.tgz
 	    mv *.fits endmagnetogram
 	    python3 remap_magnetogram.py endmagnetogram fitsfile
-	    ./HARMONICS.exe |tee harmonics.log_`date +%y%m%d_%H%M`
+	    ./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
 	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 	    while [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
 	    do
@@ -68,7 +68,7 @@ do
 		tar -xzvf submission.tgz
 		mv *.fits endmagnetogram
 		python3 remap_magnetogram.py endmagnetogram fitsfile
-		./HARMONICS.exe > harmonics.log_`date +%y%m%d_%H%M`
+		./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
 		mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 	    done
 	    cp $SWMF_dir/AWSRT/PARAM.in.realtime.restart PARAM.tmp
@@ -78,7 +78,7 @@ do
 	    cd $SWMF_dir
 	    Scripts/TestParam.pl -F $RUNDIR/PARAM.in
 	    cd $RUNDIR
-	    mpiexec -n 216 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+	    mpiexec -n 128 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
 	    if [ !-f SWMF.SUCCESS ]; then
 		rm -f harmonics_new_bxyz.out
 		mv harmonics_bxyz.out harmonics_new_bxyz.out
@@ -86,7 +86,7 @@ do
 		mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
 		exit 0
 	    fi
-	    ./PostProc.pl -n=16
+	    ./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
 	    rm -rf RESTART_n000000
 	    ./Restart.pl -v
 	done
