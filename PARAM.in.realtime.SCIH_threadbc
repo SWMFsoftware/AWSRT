@@ -85,7 +85,7 @@ T			DoPlotThreads
 T			DoTRCorrection
 T			UsePlanarTriangles
 
-#UNCLUDE
+#INCLUDE
 CORONALHEATING.in
 
 #HEATPARTITIONING
