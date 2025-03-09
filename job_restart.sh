@@ -51,7 +51,7 @@ do
 	    tar -xzvf submission.tgz
 	    mv *.fits endmagnetogram
 	    python3 remap_magnetogram.py endmagnetogram fitsfile
-	    ./HARMONICS.exe |tee harmonics.log_`date +%y%m%d_%H%M`
+	    ./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
 	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 	    while [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
 	    do
@@ -86,7 +86,7 @@ do
 		mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
 		exit 0
 	    fi
-	    ./PostProc.pl -n=16
+	    ./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
 	    rm -rf RESTART_n000000
 	    ./Restart.pl -v
 	done
