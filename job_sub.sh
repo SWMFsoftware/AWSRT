@@ -1,5 +1,5 @@
 #!/bin/bash      
-#SBATCH -n 256                                  # Number of tasks
+#SBATCH -n 216                                  # Number of tasks
 #SBATCH -o AWSOMR_rt.o%j                        # Output
 #SBATCH -e AWSOMR_rt.e%j                        # Output
 #SBATCH -J AWSOMR_rt                            # Job name
@@ -67,7 +67,7 @@ Scripts/TestParam.pl -F $RUNDIR/PARAM.in
 
 # run SWMF models
 cd $RUNDIR
-mpiexec -n 256 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+mpiexec -n 216 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
 ./Restart.pl -v
 cd $SWMF_dir
 exit 0
