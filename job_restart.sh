@@ -55,6 +55,7 @@ do
 	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 	    if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
 	    then
+		cd $RUNDIR
 		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
 		echo "Simulation system chased real time"
 		exit 0
@@ -67,7 +68,7 @@ do
 	    Scripts/TestParam.pl -F $RUNDIR/PARAM.in
 	    cd $RUNDIR
 	    mpiexec -n 192 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
-	    if [ !-f SWMF.SUCCESS ]; then
+	    if [ ! -f SWMF.SUCCESS ]; then
 		rm -f harmonics_new_bxyz.out
 		mv harmonics_bxyz.out harmonics_new_bxyz.out
 		rm -f SC/ENDMAGNETOGRAMTIME.in
