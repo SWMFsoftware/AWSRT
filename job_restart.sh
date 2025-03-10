@@ -53,24 +53,12 @@ do
 	    python3 remap_magnetogram.py endmagnetogram fitsfile
 	    ./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
 	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
-	    while [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
-	    do
-		if [ -f "AWSOMRT.STOP" ]; then
-		    rm -f ENDMAGNETOGRAMTIME.in
-		    mv STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
-		    echo "Find AWSOMRT.STOP in $RUNDIR/SC"
-		    exit 0
-		fi
-		sleep 300
-		cd $SWMF_dir
-		python3 get_latest_magnetogram.py
-		cd $RUNDIR/SC
-		tar -xzvf submission.tgz
-		mv *.fits endmagnetogram
-		python3 remap_magnetogram.py endmagnetogram fitsfile
-		./HARMONICS.exe > harmonics.log_`date +%y%m%d_%H%M`
-		mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
-	    done
+	    if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
+	    then
+		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
+		echo "Simulation system chased real time"
+		exit 0
+	    fi
 	    cp $SWMF_dir/AWSRT/PARAM.in.realtime.restart PARAM.tmp
 	    #Convert it as PARAM.in
 	    $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
