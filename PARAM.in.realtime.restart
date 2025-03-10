@@ -120,7 +120,7 @@ T			UseSaMhd
 #USERSWITCH
 +init			StringSwitch
 
-PLOTTHREADS
+#PLOTTHREADS
 T			DoPlotThreads
 10			nGUniform
 T			DoTRCorrection
