@@ -126,6 +126,9 @@ T			DoPlotThreads
 T			DoTRCorrection
 T			UsePlanarTriangles
 
+#CHROMOEVAPORATION
+T			UseChromoEvaporation
+
 #POYNTINGFLUX
 1.0e6			PoyntingFluxPerBSi
 

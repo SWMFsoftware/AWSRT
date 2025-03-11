@@ -85,6 +85,9 @@ T			DoPlotThreads
 T			DoTRCorrection
 T			UsePlanarTriangles
 
+#CHROMOEVAPORATION
+T			UseChromoEvaporation
+
 #INCLUDE
 CORONALHEATING.in
 
