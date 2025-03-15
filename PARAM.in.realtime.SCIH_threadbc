@@ -218,7 +218,7 @@ T			DoSaveLogfile
 VAR			StringLog
 100			DnSaveLogfile
 -1.			DtSaveLogfile
-rho mx my mz p pmin urmin urmax		NameLogVars
+rho mx my mz p pe pmin pmax urmin urmax		NameLogVars
 
 #OUTERBOUNDARY
 fieldlinethreads		TypeBc1
@@ -475,7 +475,7 @@ T			DoSaveLogfile
 VAR			StringLog
 1			DnSaveLogfile
 -1.			DtSaveLogfile
-rho mx my mz p pmin urmin urmax		NameLogVars
+rho mx my mz p pe pmin pmax urmin urmax		NameLogVars
 
 #SAVEPLOT
 3			nPlotFile
