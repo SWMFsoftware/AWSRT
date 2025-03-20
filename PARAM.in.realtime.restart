@@ -230,7 +230,7 @@ T			DoSaveLogfile
 VAR			StringLog
 -1			DnSaveLogfile
 120.			DtSaveLogfile
-rho mx my mz p pe pmin pmax urmin urmax
+dt rho mx my mz p pe pmin pmax urmin urmax
 
 #OUTERBOUNDARY
 fieldlinethreads		TypeBc1
