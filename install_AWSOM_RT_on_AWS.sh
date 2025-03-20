@@ -37,7 +37,7 @@ echo "$SWMF_dir"
 # Install SC and IH
 ./Config.pl -v=Empty,SC/BATSRUS,IH/BATSRUS
 ./Config.pl -o=SC:u=Awsom,e=AwsomSA,nG=2,g=6,8,8
-cd SC/BATSRUS; make newtr; cd ${SWMF_dir}
+# cd SC/BATSRUS; make newtr; cd ${SWMF_dir}
 ./Config.pl -o=IH:u=Awsom,e=AwsomSA,nG=2,g=8,8,8
 #
 #
