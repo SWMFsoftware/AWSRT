@@ -57,6 +57,7 @@ do
 	    if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
 	    then
 		cd $RUNDIR
+		mv harmonics_bxyz.out harmonics_new_bxyz.out
 		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
 		echo "Simulation system chased real time"
 		exit 0
