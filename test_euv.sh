@@ -23,12 +23,13 @@ source ${IDL_DIR}/bin/idl_setup.bash
 ############## cp AWSRT/test_euv.sh .
 AWSRT=$SWMF_dir/AWSRT
 export IDL_PATH="${IDL_DIR}/lib:$AWSRT:$SWMF_dir/share/IDL/General:<IDL_DEFAULT>"
+echo "IDL_PATH=$IDL_PATH"
 ############## Use the full path to SSW
 ############## if modified, file AWSRT/sswidl.sh should be modified too 
 SSW=${HOME}/ssw
 export SSW
 ############## Initialize ssw/idl interface
-$AWSRT/bin/sswidl.sh
+$AWSRT/sswidl.sh
 ############## for "all" aia synthetic images
 for namefile in ${RUNDIR}/los_sdo_aia*.out
 do
