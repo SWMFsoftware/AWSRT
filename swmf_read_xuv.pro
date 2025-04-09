@@ -74,7 +74,8 @@ pro swmf_read_xuv, filename, $
   
   if if_eps then begin
     set_plot, 'ps'
-    device, filename = file_dirname(filename) + '/' + file_basename(filename, '.out') + '.eps', $
+    device, filename = file_dirname(filename) + '/' + $
+            file_basename(filename, '_000.out') + '.eps', $
             xsize = 45, ysize = 30, /color, /encapsul, bits = 8
     !p.font = 2
 
@@ -191,3 +192,22 @@ pro swmf_read_xuv, filename, $
     !p.font = -1
   endif
 end
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+function get_posi,a,ix,iy
+
+ax=a[0]
+ay=a[1]
+lx=a[2]
+ly=a[3]
+dx=a[4]
+dy=a[5]
+
+posi_list=fltarr(ix,iy,4)
+posi_list[0,0,*]=[ax,1-ay-ly,ax+lx,1-ay]
+if ix gt 1 then for i=1,ix-1 do posi_list[i,0,*]=posi_list[i-1,0,*]+[1,0,1,0]*dx
+if iy gt 1 then for i=0,ix-1 do for j=1,iy-1 do posi_list[i,j,*]=posi_list[i,j-1,*]-[0,1,0,1]*dy
+
+return,posi_list
+
+end
+
