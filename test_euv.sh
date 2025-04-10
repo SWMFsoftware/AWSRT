@@ -33,6 +33,7 @@ $AWSRT/sswidl.sh
 ############## for "all" aia synthetic images
 for namefile in ${RUNDIR}/los_sdo_aia*.out
 do
+    python3 $AWSRT/get_euv_obs.py ${namefile}
     echo ".r swmf_read_xuv">idlrun
     echo "swmf_read_xuv,'${namefile}' ">>idlrun
     echo "exit">>idlrun
