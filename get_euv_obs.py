@@ -14,8 +14,9 @@ import urllib.request
 import argparse
 
 ISWA_DATA_URL = 'https://iswaa-webservice1.ccmc.gsfc.nasa.gov/iswa_data_tree/observation/solar/sdo/'
-list_aia=["aia-0131_1024x1024"]
-line_list=["131","171","193","211"]
+list_aia=["aia-0131_1024x1024", "aia-0171_2048x2048", "aia-0193_1024x1024", "aia-0211_2048x2048",
+          "aia-0335_2048x2048", "aia-0211-193-0171_2048x2048" ]
+line_list=["131","171","193","211","335","211193171"]
 
 #modify to change the output directory (run_realtime directory used for realtime simulations)
 OUTPUT_BASE_PATH = 'run_realtime/SC'
@@ -67,7 +68,7 @@ def get_highest(page_url, pattern, datetime):
         text = link['text']
         matches = re.search(pattern, text)
         if (matches):
-            if (matches.group(1) > last_match and matches.group(1)>=datetime):
+            if (matches.group(1) > last_match and matches.group(1)<=datetime):
                 last_match = matches.group(1)
                 lats_link = original_url
                 last_text = text
@@ -80,8 +81,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     inputfile = str(args.inputfile)
     print("Input file name="+str(inputfile))
-    mydir = os.path.dirname(inputfile)
-    print("mydir="+str(mydir))
     myfile = os.path.basename(inputfile)
     print("myfile="+str(myfile))
     matches=re.search(r'(\d\d\d\d\d\d\d\d_\d\d\d\d\d\d)',myfile)
@@ -90,20 +89,18 @@ if __name__ == '__main__':
     month = matches.group(1)[4:6]
     print("Year=",str(year))
     print("Month="+str(month))
-    month_url = ISWA_DATA_URL.rstrip('/')+'/'+\
-        list_aia[0]+'/'+str(year)+'/'+str(month)+'/'
-    print("month_url="+str(month_url))
-# Fetch observation data
-[cr, text, link] = get_highest(month_url, r'(\d\d\d\d\d\dt\d\d\d\dc\d\d\d\d)',matches.group(1))
-granule_url = month_url.rstrip('/') + '/' + link
-print("granule_url="+str(granule_url))
-# Copy template files
-if not os.path.exists(OUTPUT_BASE_PATH):
-    os.makedirs(OUTPUT_BASE_PATH)
-
-# Adjust input files
-jpeg_file = os.path.join(OUTPUT_BASE_PATH, "/AIA_"+line_list[0]+".jpeg")
-
-urllib.request.urlretrieve(granule_url,jpeg_file)
-#os.unlink(fits_file_gz)
+    for i in range(6):
+        month_url = ISWA_DATA_URL.rstrip('/')+'/'+\
+            list_aia[i]+'/'+str(year)+'/'+str(month)+'/'
+        print("month_url="+str(month_url))
+        [cr, text, link] = get_highest(
+            month_url,r'(\d\d\d\d\d\d\d\d_\d\d\d\d\d\d)',str(matches.group(1)))
+        granule_url = month_url.rstrip('/') + '/' + link
+        print("granule_url="+str(granule_url))
+        if not os.path.exists(OUTPUT_BASE_PATH):
+            os.makedirs(OUTPUT_BASE_PATH)
+        jpg_file = os.path.join(OUTPUT_BASE_PATH, "AIA_"+line_list[i]+".jpg")
+        print("jpg_file="+jpg_file)
+        urllib.request.urlretrieve(granule_url,jpg_file)
+        urllib.request.urlretrieve(granule_url)
 
