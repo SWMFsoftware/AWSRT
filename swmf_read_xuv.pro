@@ -2,8 +2,7 @@
 pro swmf_read_xuv, filename, $
   if_eps = if_eps, $
   if_compare = if_compare, $
-  data_dir = data_dir, $
-  if_combined_euv = if_combined_euv
+  data_dir = data_dir
   compile_opt idl2
 
   default, hl, 9
@@ -21,12 +20,8 @@ pro swmf_read_xuv, filename, $
     print, 'Please provide the directory for data.'
     return
   endif
-
+  print, data_dir
   openr, lun, filename, /get_lun
-
-;  head = string(1)
-;  for i = 0, hl - 1 do readf, lun, head
-; Version for ASCII .out files:
   
   lenstr = 79
   headline = ''
@@ -79,20 +74,24 @@ pro swmf_read_xuv, filename, $
             xsize = 45, ysize = 30, /color, /encapsul, bits = 8
     !p.font = 2
 
-    posi_list = get_posi([0, 0, 0.334, 0.5, 0.332, 0.5], 3, 2)
+    posi_list = get_posi([0, 0.05, 0.3, 0.45, 0.332, 0.48], 3, 2)
 
     line_list = ['131', '171', '193', '211', '335', '3']
+    titles = ['AIA 131', 'AIA 171', 'AIA 193', 'AIA 211', $
+              'AIA 335', 'XRT Ti-Poly']
     max_list = [2.5, 3.5, 3, 3, 2, 1.5]
     min_list = [0., 0., 0.5, 0.0, -0.5, -1.]
 
     for i = 0, 5 do begin
-; assign img1 to be aia_131 / aia_171 / aia_193 / aia_211 / aia_335 / xrt_tipoly
-      if i lt 5 then a = execute('img1=aia_' + line_list[i]) else img1 = xrt_tipoly
-; choose a color table accordingly       
-      if i lt 5 then aia_lct, wave = line_list[i], /load else loadct, 3
-; plot six images into a single eps figure
-      PLOT_IMAGE, posi = posi_list[i mod 3, i / 3, *], max = max_list[i], min = min_list[i], $
-                  alog10(img1), xst = 5, yst = 5, /noerase
+       ; assign img1 to be aia_131/171/193/211/335/xrt_tipoly
+       if i lt 5 then a = execute('img1=aia_' + line_list[i]) $
+       else img1 = xrt_tipoly
+       ; choose a color table accordingly
+       if i lt 5 then aia_lct, wave = line_list[i], /load else loadct, 3
+       ; plot six images into a single eps figure
+       PLOT_IMAGE, posi = posi_list[i mod 3, i / 3, *], max = max_list[i], $
+                   min = min_list[i], alog10(img1), xst = 5, yst = 5, $
+                   /noerase, title = titles[i], color = 0, charsize = 1.0
     endfor
 
     device, /close
@@ -100,91 +99,50 @@ pro swmf_read_xuv, filename, $
     !p.font = -1
   endif
 
-  if if_combined_euv then begin
-    line_list = ['211', '193', '171']
-    max_list = [2.5, 3.25, 4.25]
-    min_list = [0., 0.25, 1.25]
-    rgb = fltarr(3, npix * 2, npix * 2)
-    for i = 0, 2 do begin
-      a = execute('img1=aia_' + line_list[i])
-      rgb[i, *, *] = bytscl(alog10(rebin(img1, npix * 2, npix * 2)), max = max_list[i], min = min_list[i])
-    endfor
-
-    write_png, file_dirname(filename) + '/combined_euv.png', rgb
-
-    if if_compare then begin
-      files_data = file_search(data_dir, 'AIA*fits')
-      for i = 0, n_elements(files_data) - 1 do begin
-        for j = 0, n_elements(line_list) - 1 do begin
-          if line_list[j] eq strmid(file_basename(files_data[i]), 20, 3) then begin
-            read_sdo, files_data[i], index, img_obs
-            sz_obs = size(img_obs)
-            if not keyword_set(obs_all) then begin
-               obs_all = fltarr(sz_obs[1], sz_obs[2], n_elements(line_list))
-            endif
-            obs_all[*, *, j] = img_obs
-          endif
-        end
-      end
-
-      for i = 0, 2 do rgb[i, *, *] = bytscl(alog10(obs_all[*, *, i]), max = max_list[i], min = min_list[i])
-    endif
-    write_png, file_dirname(filename) + '/combined_euv_reals.png', rgb
-    if keyword_set(obs_all) then undefine, obs_all
-  endif
-
   if if_compare then begin
     line_list = ['131', '171', '193', '211']
     max_list = [3., 4., 4., 4.]
     min_list = max_list - 3.5
 
-    files_data = file_search(data_dir, 'AIA*fits')
+    files_data = file_search(data_dir, 'AIA*jpg')
     for i = 0, n_elements(files_data) - 1 do begin
-      for j = 0, n_elements(line_list) - 1 do begin
-        if line_list[j] eq strmid(file_basename(files_data[i]), 20, 3) then begin
-          read_sdo, files_data[i], index, img_obs
-          sz_obs = size(img_obs)
-          if not keyword_set(obs_all) then begin
-            obs_all = fltarr(sz_obs[1], sz_obs[2], n_elements(line_list))
+       for j = 0, n_elements(line_list) - 1 do begin
+          if line_list[j] eq strmid(file_basename(files_data[i]), 4, 3) then $
+             begin
+             read_jpeg, files_data[i], img_obs, TRUE=3
+             if not keyword_set(obs_all) then begin
+                obs_all = fltarr(npix, npix, 3, n_elements(line_list))
+             endif
+             obs_all[*, *, *, j] = rebin(img_obs, npix, npix, 3)
           endif
-          obs_all[*, *, j] = img_obs
-        endif
-      end
+       end
     end
 
     set_plot, 'ps'
-    device, filename = file_dirname(filename) + '/aia_compare.eps', xsize = 36, ysize = 20, /color, /encapsul, bits = 8
+    device, filename = file_dirname(filename) +'/' + $
+            file_basename(filename, '_000.out') + '_compare.eps', $
+            xsize = 36, ysize = 20, /color, /encapsul, bits = 8
     !p.font = 2
 
     posi_list = get_posi([0.04, 0.04, 0.22, 0.396, 0.24, 0.45], 4, 2)
 
     for i = 0, 3 do begin
-      aia_lct, wave = line_list[i], /load
-      a = execute('img1=aia_' + line_list[i])
-      img1 = interpolate(img1, 256 + (findgen(512) + 0.5 - 256) * 1.25 / 1.98, 256 + (findgen(512) + 0.5 - 256) * 1.25 / 1.98, /grid)
-      img2 = rebin(obs_all[*, *, i], sz_obs[1] / 2, sz_obs[2] / 2)
-      PLOT_IMAGE, posi = posi_list[i, 0, *], max = max_list[i], min = min_list[i], alog10(img1), $
-        xst = 5, yst = 5, /noerase, title = 'AIA ' + line_list[i] + ' Model', color = 0, charsize = 1.0
-      a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i), 2) + 'B)+")",color=255,charsize=1.2')
+       aia_lct, wave = line_list[i], /load
+       a = execute('img1=aia_' + line_list[i])
+       PLOT_IMAGE, posi = posi_list[i, 0, *], $
+                   max = max_list[i], min = min_list[i], alog10(img1), $
+                   xst = 5, yst = 5, /noerase, title = $
+                   'AIA ' + line_list[i] + ' Model', color = 0, charsize = 1.0
+          ; a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i), 2)$
+              ; + 'B)+")",color=255,charsize=1.2')
 
-      if i eq 1 then begin
-        arrow, 20, 400, 40, 350, /data, /normalized, hsize = 250, color = 255, thick = 6, /solid
-        arrow, 490, 350, 470, 300, /data, /normalized, hsize = 250, color = 255, thick = 6, /solid
-        xyouts, 5, 410, 'AR1', color = 255, charsize = 0.8, charthick = 2.
-        xyouts, 480, 360, 'CL', color = 255, charsize = 0.8, charthick = 2.
-      endif
-      PLOT_IMAGE, posi = posi_list[i, 1, *], max = max_list[i], min = min_list[i], alog10(img2), $
-        xst = 5, yst = 5, /noerase, title = 'AIA ' + line_list[i] + ' Observation', color = 0s, charsize = 1.0
-      a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i + 4), 2) + 'B)+")",color=255,charsize=1.2')
-      if i eq 1 then begin
-        arrow, 20, 400, 40, 350, /data, /normalized, hsize = 250, color = 255, thick = 6, /solid
-        arrow, 490, 350, 470, 300, /data, /normalized, hsize = 250, color = 255, thick = 6, /solid
-        xyouts, 5, 410, 'AR1', color = 255, charsize = 0.8, charthick = 2.
-        xyouts, 480, 360, 'CL', color = 255, charsize = 0.8, charthick = 2.
-      endif
-      COLORBAR, posi = posi_list[i, 1, *] - [0, 0.13, 0, 1.09] * 0.396, $
-        range = [min_list[i], max_list[i]], title = 'log DN/s', charsize = 1., color = 0, $
-        div = 4, format = '(f4.1)', /bottom
+       loadct,0
+       PLOT_IMAGE, posi = posi_list[i, 1, *], obs_all[*, *, *, i], type='jpeg',$
+                   xst = 5, yst = 5, /noerase, $
+                   title = 'AIA ' + line_list[i] + ' Observation', $
+                   color = 0s, charsize = 1.0
+          ;a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i + 4),$
+               ; 2)+ 'B)+")",color=255,charsize=1.2')
     endfor
 
     device, /close
@@ -204,8 +162,10 @@ dy=a[5]
 
 posi_list=fltarr(ix,iy,4)
 posi_list[0,0,*]=[ax,1-ay-ly,ax+lx,1-ay]
-if ix gt 1 then for i=1,ix-1 do posi_list[i,0,*]=posi_list[i-1,0,*]+[1,0,1,0]*dx
-if iy gt 1 then for i=0,ix-1 do for j=1,iy-1 do posi_list[i,j,*]=posi_list[i,j-1,*]-[0,1,0,1]*dy
+if ix gt 1 then for i=1,ix-1 do posi_list[i,0,*]=$
+   posi_list[i-1,0,*]+[1,0,1,0]*dx
+if iy gt 1 then for i=0,ix-1 do for j=1,iy-1 do posi_list[i,j,*]=$
+   posi_list[i,j-1,*]-[0,1,0,1]*dy
 
 return,posi_list
 
