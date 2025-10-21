@@ -8,12 +8,10 @@
 ###############################################################################################################
 
 from html.parser import HTMLParser
-import itertools
+import requests
 import re
 import os
 import shutil
-from subprocess import call
-import urllib.request
 import gzip
 import tarfile
 
@@ -53,17 +51,8 @@ class LinkScrape(HTMLParser):
 
 
 def get_highest(page_url, pattern):
-    global HEADERS
-    request = urllib.request.Request(page_url, headers=HEADERS)
-
-    try:
-        response = urllib.request.urlopen(request)
-        page_html = response.read().decode("utf8")
-    except:
-        print("Failed to download magnetogram")
-        exit
-
-
+    response = requests.get(page_url)
+    page_html = response.text
     link_parser = LinkScrape()
     link_parser.feed(page_html)
     links = link_parser.links
@@ -84,6 +73,20 @@ def get_highest(page_url, pattern):
                 last_text = text
     return [last_match, last_text, lats_link]
 
+def download_file(url, save_path):
+    try:
+        # Send GET request to the URL
+        response = requests.get(url)
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Write the content of the response to a local file
+            with open(save_path, 'wb') as file:
+                file.write(response.content)
+            print(f"File downloaded successfully: {save_path}")
+        else:
+            print(f"Failed to download file. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error: {e}")
 
 # Fetch magnetogram data
 [year, year_text, year_link] = get_highest(ISWA_DATA_URL, r'(\d\d\d\d)')
@@ -106,7 +109,7 @@ shutil.copytree(INPUT_BASE_PATH, tmp_path)
 fits_file = os.path.join(tmp_path, "fitsfile.fits")
 fits_file_gz = os.path.join(tmp_path, "fitsfile.fits.gz")
 
-urllib.request.urlretrieve(granule_url, fits_file_gz)
+download_file(granule_url, fits_file_gz)
 
 #urllib.request.urlretrieve(granule_url)
 
