@@ -1,0 +1,10 @@
+#POYNTINGFLUX
+0.5e6			PoyntingFluxPerBSi [J/m^2/s/T]
+
+#CORONALHEATING
+turbulentcascade	TypeCoronalHeating
+1.5e5			LperpTimesSqrtBSi
+1.05                    rMinWaveReflection
+F                       UseSurfaceWaveRefl
+
+#END
