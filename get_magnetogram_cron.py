@@ -16,7 +16,7 @@ import gzip
 import tarfile
 
 ISWA_DATA_URL = 'https://iswaa-webservice1.ccmc.gsfc.nasa.gov/iswa_data_tree/observation/solar/gong/mrzqs/'
-INPUT_BASE_PATH = 'SUBMISSION_DATA'
+INPUT_BASE_PATH = '/home4/isokolov/SUBMISSION_DATA'
 
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"}
 
