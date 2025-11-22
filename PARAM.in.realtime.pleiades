@@ -1,8 +1,9 @@
-For a three-temperature solar wind simulation, configure SWMF with
+For Stream-Aligned MHD with/wo MFLAMPA simulation, configure SWMF with
 
-./Config.pl -v=Empty,SC/BATSRUS,IH/BATSRUS
-./Config.pl -o=SC:u=Awsom,e=Awsom,g=6,8,8,nG=2
-./Config.pl -o=IH:u=Awsom,e=Awsom,g=8,8,8,nG=2
+./Config.pl -v=SC/BATSRUS,IH/BATSRUS,SP/MFLAMPA;
+./Config.pl -o=SC:u=AwsomR,e=AwsomSA,ng=2,g=8,8,4;
+./Config.pl -o=IH:u=AwsomR,e=AwsomSA,ng=2,g=4,4,4;
+./Config.pl -o=SP:g=20000
 
 Default inner boundary is 1.1 Rs
 Default rMinWaveReflection is 0.0
@@ -14,9 +15,11 @@ Begin session: 1
 SC  0 -1  1		CompMap
 IH  0 -1  1		CompMap
 
+#ECHO
+T			DoEcho
+
 #DESCRIPTION
 PARAM.in.realtime.SCIH_threadbc: create steady state		StringDescription
-
 
 #TIMEACCURATE
 F			IsTimeAccurate
@@ -35,12 +38,12 @@ init_axes		StringTest
 
 #BEGIN_COMP SC ---------------------------------------------------------------
 
-#GRIDBLOCKALL
-200000			MaxBlock
 
-
-RESTARTOUTFILE
+#RESTARTOUTFILE
 one			StringRestartOutFile
+
+#GRIDBLOCKALL
+25000			MaxBlock
 
 #COORDSYSTEM
 HGR			TypeCoordSystem
@@ -50,6 +53,10 @@ HGR			TypeCoordSystem
 1.0			IonCharge [e]
 1.0			ElectronTemperatureRatio
 
+#CHROMOSPHERE
+F			UseChromosphereHeating
+3.125e11		NeChromosphereCgs
+3.2e4			TeChromosphereSi
 
 #FIELDLINETHREAD
 T			UseFieldLineThreads
@@ -71,22 +78,8 @@ T			UseB0MomentumFlux
 T			UseB0Source
 T			UseDivFullBSource
 
-#ALIGNBANDU
-T			UseSaMhd
-1.1			RsourceSaMhd
-5.5			RminSaMhd
-
 #USERSWITCH
 +init +ic		StringSwitch
-
-#PLOTTHREADS
-T			DoPlotThreads
-10			nGUniform
-T			DoTRCorrection
-T			UsePlanarTriangles
-
-#CHROMOEVAPORATION
-T			UseChromoEvaporation
 
 #INCLUDE
 CORONALHEATING.in
@@ -95,6 +88,13 @@ CORONALHEATING.in
 stochasticheating		TypeHeatPartitioning
 0.21			StochasticExponent
 0.18			StochasticAmplitude
+
+#USERINPUTBEGIN -----------------------------------
+
+#DOTETIEXCHANGEEXPL
+T			DoTeTiExchangeExpl
+
+#USERINPUTEND -------------------------------------
 
 #RADIATIVECOOLING
 T			UseRadCooling
@@ -115,7 +115,6 @@ real8			TypeFile
 T			UseCoarseAxis
 3			nCoarseLayer
 
-turn these off when restarting
 ---------------------------------------------------
 #GRIDGEOMETRY
 spherical_lnr		TypeGeometry
@@ -124,7 +123,7 @@ spherical_lnr		TypeGeometry
 #GRID
 2			nRootBlock1
 2			nRootBlock2
-1			nRootBlock3
+2			nRootBlock3
 -100.0			xMin
  100.0			xMax
 -100.0			yMin
@@ -139,32 +138,49 @@ spherical_lnr		TypeGeometry
 ----------------------------------------------------
 #AMRREGION
 InnerShell		NameRegion
-shell0			StringShape
-1.1			RadiusInner
-1.7			Radius
+box_gen			StringShape
+1.1			Coord1MinBox
+0.0			Coord2MinBox
+-70.0			Coord3MinBox
+1.7			Coord1MaxBox
+360.0			Coord2MaxBox
+70.0			Coord3MaxBox
+
 
 #AMRREGION
-earthcone		NameRegion
-conex0 earth		StringShape
--24.			Height
-9.			Radius
+polar			NameRegion
+doubleconez0		StringShape
+24			Height
+8.7			Radius
+
+#AMRREGION
+coneearth		NameRegion
+conex0 sat:earth		StringShape
+24			Height
+9			Radius
 
 #AMRCRITERIARESOLUTION
-3			nRefineCrit
+4			nRefineCrit
 dphi			StringRefine
 3.0			RefineTo
 1.5			CoarsenFrom
 dphi Innershell		StringRefine
-1.5  			RefineTo
+1.5			RefineTo
 0.75			CoarsenFrom
-currentsheet		StringRefine
+currentsheet -polar		StringRefine
 0.5			CoarsenLimit
 0.5			RefineLimit
 1.5			MaxResolution
+dphi coneearth		StringRefine
+1.5			RefineTo
+0.75			CoarsenFrom
 
-dphi earthcone		StringRefine
-1.5/2			RefineTo
-0.75/2			CoarsenFrom
+#SATELLITE
+1			nSatellite
+MHD			StringSatellite
+-1			DnOutput
+-1.0			DtOutput
+SC/TRAJECTORY/earth.dat		NameTrajectoryFile
 
 #GRIDRESOLUTION
 1.5			Resolution
@@ -180,16 +196,6 @@ T			IsStrictAmr
 2			nStage
 0.8			CflExpl
 
-#SCHEME
-2			nOrder (1 or 2)
-Linde			TypeFlux (Roe, Rusanov, Linde, Sokolov
-minmod			TypeLimiter
-
-#LIMITER
-T			UseLogRhoLimiter
-T			UseLogPLimiter
-F			UseRhoRatioLimiter
-
 #MINIMUMPRESSURE
 1.0E-9			pMinDim
 1.0E-9			PeMinDim
@@ -203,6 +209,17 @@ T			UseSpeedMin
 10			rSpeedMin
 250			SpeedMinDim
 10 h			TauSpeedMinDim
+
+#SCHEME
+2			nOrder (1 or 2)
+Sokolov			TypeFlux (Roe, Rusanov, Linde, Sokolov
+mc3			TypeLimiter
+1.2			LimiterBeta
+
+#LIMITER
+T			UseLogRhoLimiter
+T			UseLogPLimiter
+F			UseRhoRatioLimiter
 
 #NONCONSERVATIVE
 T			UseNonConservative
@@ -223,48 +240,17 @@ rho mx my mz p pe pmin pmax urmin urmax		NameLogVars
 #OUTERBOUNDARY
 fieldlinethreads		TypeBc1
 float			TypeBc2
-periodic		TypeBc3
-periodic		TypeBc4
+none			TypeBc3
+none			TypeBc4
 none			TypeBc5
 none			TypeBc6
 
-
 #SAVEPLOT
-4			nPlotFile
-x=0 VAR idl_ascii		StringPlot
-5000			DnSavePlot
--1.0			DtSavePlot
--1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dphi		NameVars
-{default}		NamePars
-y=0 VAR idl_ascii		StringPlot
-5000			DnSavePlot
--1.			DtSavePlot
--1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dphi		NameVars
-{default}		NamePars
-z=0 VAR idl_ascii		StringPlot
-5000			DnSavePlot
--1.			DtSavePlot
--1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dphi		NameVars
-{default}		NamePars
+1			nPlotFile
 los ins idl_ascii		StringPlot
 80000			DnSavePlot
 -1.0			DtSavePlot
-sta:euvi sdo:aia		StringsInstrument
-
-#SATELLITE
-2			nSatellite
-MHD			StringSatellite
--1			DnOutput
--1.0			DtOutput
-SC/TRAJECTORY/earth.dat		NameTrajectoryFile
-MHD			StringSatellite
--1			DnOutput
--1.0			DtOutput
-SC/TRAJECTORY/sta.dat		NameTrajectoryFile
-
+sdo:aia		StringsInstrument
 
 #LOOKUPTABLE
 AiaXrt			NameTable
@@ -272,20 +258,19 @@ load			NameCommand
 SC/Param/los_tbl.dat		NameFile
 ascii			TypeFile
 
-#LOOKUPTABLE
-euv			NameTable
-load			NameCommand
-SC/Param/los_Eit_cor.dat		NameFile
-ascii			TypeFile
-
-#LOOKUPTABLE
-EuviA			NameTable
-load			NameCommand
-SC/Param/los_EuviA.dat		NameFile
-ascii			TypeFile
-
 #SAVEINITIAL
 F			DoSaveInitial
+
+#PLOTTHREADS
+T			DoPlotThreads
+10			nGUniform
+T			UseTRCorrection
+T			UsePlanarTriangles
+
+#ALIGNBANDU
+T			UseSaMhd
+1.1			RsourceSaMhd
+5.5			RminSaMhd
 
 #END_COMP SC -----------------------------------------------------------------
 
@@ -294,7 +279,7 @@ IH			NameComp
 F			UseComp
 
 #STOP
-1000			MaxIter
+70000			MaxIter
 -1.0			TimeMax
 
 End session: 1
@@ -303,29 +288,11 @@ Begin session: 2
 
 #BEGIN_COMP SC ---------------------------------------------------------------
 
-#SCHEME
-2			nOrder (1 or 2)
-Linde			TypeFlux (Roe, Rusanov, Linde, Sokolov
-mc3			TypeLimiter
-1.2			LimiterBeta
-
-#END_COMP SC -----------------------------------------------------------------
-
-#STOP
-70000			MaxIter
--1.0			TimeMax
-
-End session: 2
-#RUN ##########################################################################
-Begin session: 3
-
-#BEGIN_COMP SC ---------------------------------------------------------------
-
 #MINIMUMRADIALSPEED
 F			UseSpeedMin
 
-#AMR
--1			DnRefine
+#DOAMR
+F			DoAmr
 
 #END_COMP SC -----------------------------------------------------------------
 
@@ -333,9 +300,9 @@ F			UseSpeedMin
 80000			MaxIter
 -1.0			TimeMax
 
-End session: 3
+End session: 2
 #RUN ##########################################################################
-Begin session: 4
+Begin session: 3
 
 #COMPONENT
 IH			NameComp
@@ -343,18 +310,18 @@ T			UseComp
 
 #BEGIN_COMP IH ---------------------------------------------------------------
 
-#GRIDBLOCKALL
-200000			MaxBlock
-
-RESTARTOUTFILE
+#RESTARTOUTFILE
 one			StringRestartOutFile
+
+#GRIDBLOCKALL
+400000			MaxBlock
 
 #COORDSYSTEM
 HGR			TypeCoordSystem
 
 #BODY
 T			UseBody
-19.			rBody
+19.0			rBody
 3.0E+8			BodyNDim
 3.5E+6			BodyTDim
 
@@ -375,40 +342,47 @@ T			UseBody
  250.0			zMax
 
 #AMRREGION
-OuterShell		NameRegion
+InnerShell		NameRegion
 shell0			StringShape
-18.0			RadiusInner
-21.0			Radius
-
-#AMRREGION
-earthcone		NameRegion
-conex0 earth		StringShape
--215.			Height
-80.			Radius
+19.0			RadiusInner
+21.55			Radius
 
 #AMRCRITERIARESOLUTION
-3			nRefineCrit
+4			nRefineCrit
 dx			StringRefine
-8.			RefineTo
-4.			CoarsenFrom
-dx +Outershell		StringRefine
+4.0			RefineTo
+2.0			CoarsenFrom
+dx Innershell		StringRefine
 0.5			RefineTo
 0.25			CoarsenFrom
 currentsheet		StringRefine
 0.5			CoarsenLimit
 0.5			RefineLimit
 1.0			MaxResolution
+dx coneearth		StringRefine
+1.0			RefineTo
+0.5			CoarsenFrom
 
-dx +earthcone		StringRefine
-0.7			RefineTo
-0.35			CoarsenFrom
+#AMRREGION
+coneearth		NameRegion
+conex0 sat:earth		StringShape
+220			Height
+80			Radius
+
+#SATELLITE
+1			nSatellite
+VAR HGR trajrange		StringSatellite
+5000			DnOutput
+-1			DtOutput
+IH/TRAJECTORY/earth.dat		NameTrajectoryFile
+-14 d			StartTimeTraj
+14 d			EndTimeTraj
+1 h			DtTraj
+rho ux uy uz bx by bz p pe ehot I01 I02		NameSatelliteVars
 
 #GRIDRESOLUTION
 2.0			Resolution
 initial			StringShape
-
-#SAVEINITIAL
-F			DoSaveInitial
 
 #INNERBOUNDARY
 buffergrid		TypeBcBody
@@ -441,9 +415,10 @@ T			UseTvdReschange
 #INCLUDE
 CORONALHEATING.in
 
-#SCHEME
-1			nOrder
-Linde			TypeFlux
+#HEATPARTITIONING
+stochasticheating		TypeHeatPartitioning
+0.21			StochasticExponent
+0.18			StochasticAmplitude
 
 The following minimum pressure is sufficiently small even when the
 domain extends to 400 Rsun, i.e. including Mars orbit.
@@ -451,6 +426,20 @@ It might be important to prevent code crashing due to CMEs with strong shocks.
 #MINIMUMPRESSURE
 1E-14			pMinDim
 1E-14			PeMinDim
+
+
+#USERINPUTBEGIN -----------------------------------
+
+#DOTETIEXCHANGEEXPL
+T			DoTeTiExchangeExpl
+
+#USERINPUTEND -------------------------------------
+
+#SCHEME
+2			nOrder
+Sokolov			TypeFlux
+mc3			TypeLimiter
+1.2			LimiterBeta
 
 #NONCONSERVATIVE
 T			UseNonConservative
@@ -465,11 +454,6 @@ T			UseDivbDiffusion
 F			UseProjection
 F			UseConstrainB
 
-#ALIGNBANDU
-T			UseSaMhd
-0.0			RsourceSaMhd
-0.0			RminSaMhd
-
 #SAVELOGFILE
 T			DoSaveLogfile
 VAR			StringLog
@@ -477,55 +461,25 @@ VAR			StringLog
 -1.			DtSaveLogfile
 rho mx my mz p pe pmin pmax urmin urmax		NameLogVars
 
+#SAVEINITIAL
+F			DoSaveInitial
+
 #SAVEPLOT
-3			nPlotFile
-x=0 VAR idl_ascii		StringPlot
-1000			DnSavePlot
--1.			DtSavePlot
--1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dx		NameVars
-{default}		NamePars
-y=0 VAR idl_ascii		StringPlot
-1000			DnSavePlot
--1.			DtSavePlot
--1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dx		NameVars
-{default}		NamePars
+2			nPlotFile
 z=0 VAR idl_ascii		StringPlot
-1000			DnSavePlot
+5000			DnSavePlot
 -1.			DtSavePlot
 -1.0			DxSavePlot
-{MHD} b1x b1y b1z te ti dx		NameVars
-{default}		NamePars
+rho ux uy uz ti te bx by bz I01 I02 p pe		NameVars
+rbody x_earth y_earth z_earth		NamePars
+buf MHD idl		StringPlot
+5000			DnSavePlot
+-1.0			DtSavePlot
 
-Start and EndTimeTraj may need to change to stop before CME flare time
-#SATELLITE
-2			nSatellite
-VAR HGR trajrange		StringSatellite
-5000			DnOutput
--1			DtOutput
-IH/TRAJECTORY/earth.dat		NameTrajectoryFile
--14 d			StartTimeTraj
-14 d			EndTimeTraj
-1 h			DtTraj
-rho ux uy uz bx by bz p pe ehot I01 I02		NameSatelliteVars
-VAR HGR trajrange		StringSatellite
-5000			DnOutput
--1			DtOutput
-IH/TRAJECTORY/sta.dat		NameTrajectoryFile
--14 d			StartTimeTraj
-14 d			EndTimeTraj
-1 h			DtTraj
-rho ux uy uz bx by bz p pe ehot I01 I02		NameSatelliteVars
-
-VAR HGR trajrange		StringSatellite
-5000			DnOutput
--1			DtOutput
-IH/TRAJECTORY/stb.dat		NameTrajectoryFile
--14 d			StartTimeTraj
-14 d			EndTimeTraj
-1 h			DtTraj
-rho ux uy uz bx by bz p pe ehot I01 I02		NameSatelliteVars
+#ALIGNBANDU
+T			UseSaMhd
+0.0			RsourceSaMhd
+0.0			RminSaMhd
 
 #END_COMP IH -----------------------------------------------------------------
 
@@ -539,9 +493,9 @@ IH			NameTarget
 80001			MaxIter
 -1.0			TimeMax
 
-End session: 4
+End session: 3
 #RUN ##########################################################################
-Begin session: 5
+Begin session: 4
 
 #COUPLE1
 SC			NameSource
@@ -557,37 +511,28 @@ F			UseComp
 
 #DOAMR
 T			DoAmr
-501			DnAmr
+1001			DnAmr
 -1.0			DtAmr
 T			IsStrictAmr
 
 #END_COMP IH -----------------------------------------------------------------
 
 #STOP
-83000			MaxIter
+84000			MaxIter
 -1.0			TimeMax
 
-End session: 5
+End session: 3
 #RUN ##########################################################################
-Begin session: 6
+Begin session: 4
 
 #BEGIN_COMP IH ---------------------------------------------------------------
 
-#SCHEME
-2			nOrder
-Linde			TypeFlux
-mc3			TypeLimiter
-1.2			LimiterBeta
-
-#AMR
--1			DnRefine
+#DOAMR
+F			DoAmr
 
 #END_COMP IH -----------------------------------------------------------------
 
 #STOP
 85000			MaxIter
 -1.0			TimeMax
-
-End session: 6
-
-#END			END_2nd_scheme
+#END ############################################################
