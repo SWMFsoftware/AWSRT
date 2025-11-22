@@ -15,7 +15,7 @@ import shutil
 import gzip
 import tarfile
 
-INPUT_BASE_PATH = 'SUBMISSION_DATA'
+INPUT_BASE_PATH = '/home4/isokolov/SUBMISSION_DATA'
 
 #modify to change the output directory (run_realtime directory used for realtime simulations)
 OUTPUT_BASE_PATH = '/nobackupp28/isokolov/run_realtime/SC'
