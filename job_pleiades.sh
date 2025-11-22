@@ -76,6 +76,6 @@ cp $SWMF_dir/AWSRT/PARAM.in.realtime.pleiades PARAM.tmp
 #Convert it as PARAM.in with the proper start time and include files
 $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 cd $RUNDIR
-mpiexec -n 448 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
 ./Restart.pl -v
 exit 0
