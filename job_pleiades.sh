@@ -58,7 +58,7 @@ cd $RUNDIR/SC
 perl -i -pe 's/dipole11uniform/fitsfile_01/; s/harmonics11uniform/endmagnetogram/; s/\d+(\s+MaxOrder)/180$$1/' HARMONICS.in
 perl -i -pe 's/USEMAGNETOGRAMDATE/#USEMAGNETOGRAMDATE/' HARMONICS.in
 #Modify HARMONICSGIRD.in magnetogram file name and grid parameters
-perl -i -pe 's/harmonics/endmagnetogram/; s/\d+(\s+MaxOrder)/180$$1/; s/\d+(\s+nR)/150$$1/; s/\d+(\s+nLon)/180$$1/; s/\d+(\s+nLat)/90$$1/' HARMONICSGRID.in
+perl -i -pe 's/harmonics/endmagnetogram/; s/\d+(\s+IsLogRadius)/T$$1; s/\d+(\s+MaxOrder)/180$$1/; s/\d+(\s+nR)/100$$1/; s/\d+(\s+nLon)/360$$1/; s/\d+(\s+nLat)/180$$1/' HARMONICSGRID.in
 #####  Download the most recent GONG magnetogram and produces fits files
 python3  $SWMF_dir/AWSRT/get_magnetogram_pleiades.py
 #Copy the file in run_realtime/SC and expand it to create fitsfile
