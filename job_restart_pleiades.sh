@@ -37,7 +37,6 @@ do
 	    cd $RUNDIR
 	    if [ -f "AWSOMRT.STOP" ]; then
 		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
-		echo "Find AWSOMRT.STOP in $RUNDIR"
 		rm -f AWSOMRT.STOP
 		exit 0
 	    fi
