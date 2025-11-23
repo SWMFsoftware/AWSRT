@@ -6,6 +6,8 @@
 #PBS -e /dev/null
 # To run on the 28-core Electra Broadwell nodes (128GB/node or 4.5GB/core)
 #PBS -l select=16:ncpus=28:model=bro_ele
+##PBS -q long
+#PBS -l walltime=08:00:00  
 ####################################################
 # Loading the modules
 source /usr/share/Modules/init/bash
