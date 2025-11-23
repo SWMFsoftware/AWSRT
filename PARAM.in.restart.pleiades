@@ -297,7 +297,7 @@ F			DoSaveInitial
 #PLOTTHREADS
 T			DoPlotThreads
 10			nGUniform
-T			UseTRCorrection
+T			DoTRCorrection
 T			UsePlanarTriangles
 
 #ALIGNBANDU
@@ -416,6 +416,9 @@ float			TypeBc6
 
 #TVDRESCHANGE
 T			UseTvdReschange
+
+#ENFORCECFL
+T			DoEnforceCfl
 
 #USERSWITCH
 +init			StringSwitch
