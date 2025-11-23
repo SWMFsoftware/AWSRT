@@ -62,7 +62,7 @@ do
 		# "Simulation system chased real time"
 		exit 0
 	    fi
-	    cp $SWMF_dir/AWSRT/PARAM.in.restart.pleyades PARAM.tmp
+	    cp $SWMF_dir/AWSRT/PARAM.in.restart.pleiades PARAM.tmp
 	    #Convert it as PARAM.in
 	    $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 	    cd $RUNDIR
