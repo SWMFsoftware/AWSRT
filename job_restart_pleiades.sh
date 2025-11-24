@@ -66,7 +66,7 @@ do
 	    #Convert it as PARAM.in
 	    $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 	    cd $RUNDIR
-	    mpiexec -n 448 ./SWMF.exe > runlog_`date +%y%m%d_%H%M`
+	    mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
 	    if [ ! -f SWMF.SUCCESS ]; then
 		rm -f harmonics_new_bxyz.out
 		mv harmonics_bxyz.out harmonics_new_bxyz.out
