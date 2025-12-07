@@ -1,29 +1,41 @@
 #!/bin/bash
-############## Mimics the BASH environment for Xianyu's IDL tool
-############## to visualize EUV+X images
-############## Such environment is used in continuous real-time simulation (RT)
-#
-############## As all RT simulations, this script is called from SWMF dir
-SWMF_dir=`pwd`
-echo "SWMF dir: $SWMF_dir"
-############## before running test_euv.sh one needs to run
-############## make test8
-############## Once done, in the directory below there is a synthetic
-############## EUV plot
-RUNDIR=$SWMF_dir/run_test/RESULTS/SC
-############## Loading the modules: use the full path to IDL
-############## If modified, file AWSRT/sswidl.sh should be modified too
-IDL_DIR=/Applications/NV5/idl91
-export IDL_DIR
+##############
+############## Runs Xianyu's script to visualize EUV+X images
+##############
+SWMF_dir=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV
+####
+## Collection of real-time infrastructure scripts
+####
+AWSRT=$SWMF_DIR/AWSRT
+####
+## Load IDL and init it for BASH
+####
+source /usr/share/Modules/init/bash
+####
+## By default, the IDL is not loaded
+module purge
+module load idl
+####
+## Now, the IDL is present in the derictory below
+####
+IDL_DIR=/nasa/idl/toss4/8.9/idl89
+####
+## Add IDL to PATH
+####
+export PATH="$PATH:$IDL_DIR/bin:$IDL_DIR/lib:$IDL_DIR/lib/utilities"
+####
+## Set IDL_PATH
+export IDL_PATH="$SWMF_DIR/share/IDL/General:<IDL_DEFAULT>"
+export IDL_STARTUP="$SWMF_DIR/share/IDL/General/idlrc"
 source ${IDL_DIR}/bin/idl_setup.bash
-############## Folder with RT scripts and parameter files, git repository,
-############## can be downloaded from the SWMF directory with
-############## share/Scripts/gitclone AWSRT
-############## The current script needs to be copied to the SWMF directory:
-############## cp AWSRT/test_euv.sh .
-AWSRT=$SWMF_dir/AWSRT
-export IDL_PATH="${IDL_DIR}/lib:$AWSRT:$SWMF_dir/share/IDL/General:<IDL_DEFAULT>"
-echo "IDL_PATH=$IDL_PATH"
+####
+####
+## Declare and cleanup real-time run directory
+####
+RUN_DIR=/nobackupp28/isokolov/run_realtime
+
+DATA_DIR=$RUN_DIR/RESULTS/SC
+
 ############## Use the full path to SSW
 ############## if modified, file AWSRT/sswidl.sh should be modified too 
 SSW=${HOME}/ssw
@@ -31,11 +43,11 @@ export SSW
 ############## Initialize ssw/idl interface
 $AWSRT/sswidl.sh
 ############## for "all" aia synthetic images
-for namefile in ${RUNDIR}/los_sdo_aia*.out
+for namefile in $DATA_DIR/los_sdo_aia*.out
 do
     python3 $AWSRT/get_euv_obs.py ${namefile}
-    echo ".r swmf_read_xuv">idlrun
-    echo "swmf_read_xuv,'${namefile}' ">>idlrun
+    echo ".r $AWSRT/swmf_read_xuv">idlrun
+    echo "swmf_read_xuv,'${namefile}',if_compare=1,data_dir='$RUN_DIR/TEMP' ">>idlrun
     echo "exit">>idlrun
     $SSW/gen/setup/ssw_idl "idlrun"
 done
