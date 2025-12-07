@@ -20,7 +20,6 @@ pro swmf_read_xuv, filename, $
     print, 'Please provide the directory for data.'
     return
   endif
-  print, data_dir
   openr, lun, filename, /get_lun
   
   lenstr = 79
@@ -103,6 +102,7 @@ pro swmf_read_xuv, filename, $
     line_list = ['131', '171', '193', '211']
     max_list = [3., 4., 4., 4.]
     min_list = max_list - 3.5
+    obs_all = fltarr(npix, npix, 3, n_elements(line_list))
 
     files_data = file_search(data_dir, 'AIA*jpg')
     for i = 0, n_elements(files_data) - 1 do begin
@@ -110,9 +110,6 @@ pro swmf_read_xuv, filename, $
           if line_list[j] eq strmid(file_basename(files_data[i]), 4, 3) then $
              begin
              read_jpeg, files_data[i], img_obs, TRUE=3
-             if not keyword_set(obs_all) then begin
-                obs_all = fltarr(npix, npix, 3, n_elements(line_list))
-             endif
              obs_all[*, *, *, j] = rebin(img_obs, npix, npix, 3)
           endif
        end
@@ -133,17 +130,13 @@ pro swmf_read_xuv, filename, $
                    max = max_list[i], min = min_list[i], alog10(img1), $
                    xst = 5, yst = 5, /noerase, title = $
                    'AIA ' + line_list[i] + ' Model', color = 0, charsize = 1.0
-          ; a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i), 2)$
-              ; + 'B)+")",color=255,charsize=1.2')
 
        loadct,0
        PLOT_IMAGE, posi = posi_list[i, 1, *], obs_all[*, *, *, i], type='jpeg',$
                    xst = 5, yst = 5, /noerase, $
                    title = 'AIA ' + line_list[i] + ' Observation', $
                    color = 0s, charsize = 1.0
-          ;a = execute('xyouts,20,20,"("+string(' + strtrim(string(97 + i + 4),$
-               ; 2)+ 'B)+")",color=255,charsize=1.2')
-    endfor
+    end
 
     device, /close
     set_plot, 'x'
