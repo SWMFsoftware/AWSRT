@@ -8,15 +8,15 @@
 ###############################################################################################################
 
 from html.parser import HTMLParser
+import requests
 import re
 import os
-import urllib.request
 import argparse
 
 ISWA_DATA_URL = 'https://iswaa-webservice1.ccmc.gsfc.nasa.gov/iswa_data_tree/observation/solar/sdo/'
 list_aia=["aia-0131_1024x1024", "aia-0171_2048x2048", "aia-0193_1024x1024", "aia-0211_2048x2048",
           "aia-0335_2048x2048", "aia-0211-193-0171_2048x2048" ]
-line_list=["131","171","193","211","335","211193171"]
+line_list=["131","171","193","211","335","3_Lines"]
 
 #modify to change the output directory (run_realtime directory used for realtime simulations)
 OUTPUT_BASE_PATH = 'run_realtime/SC'
@@ -44,21 +44,12 @@ class LinkScrape(HTMLParser):
 
 
 def get_highest(page_url, pattern, datetime):
-    global HEADERS
-    request = urllib.request.Request(page_url, headers=HEADERS)
-
-    try:
-        response = urllib.request.urlopen(request)
-        page_html = response.read().decode("utf8")
-    except:
-        print("Failed to download EUV observation")
-        exit
-
+    response = requests.get(page_url)
+    page_html = response.text
     link_parser = LinkScrape()
     link_parser.feed(page_html)
     links = link_parser.links
     link_parser.clean()
-
 
     last_match = ''
     lats_link = ''
@@ -73,6 +64,20 @@ def get_highest(page_url, pattern, datetime):
                 lats_link = original_url
                 last_text = text
     return [last_match, last_text, lats_link]
+
+def download_file(url, save_path):
+    try:
+        # Send GET request to the URL
+        response = requests.get(url)
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Write the content of the response to a local file
+            with open(save_path, 'wb') as file:
+                file.write(response.content)
+        else:
+            exit
+    except Exception as e:
+        exit
 
 if __name__ == '__main__':
 
@@ -101,6 +106,7 @@ if __name__ == '__main__':
             os.makedirs(OUTPUT_BASE_PATH)
         jpg_file = os.path.join(OUTPUT_BASE_PATH, "AIA_"+line_list[i]+".jpg")
         print("jpg_file="+jpg_file)
-        urllib.request.urlretrieve(granule_url,jpg_file)
-        urllib.request.urlretrieve(granule_url)
+        download_file(granule_url,jpg_file)
+
+exit
 
