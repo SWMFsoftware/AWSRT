@@ -2,7 +2,7 @@
 ##############
 ############## Runs Xianyu's script to visualize EUV+X images
 ##############
-SWMF_dir=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV
+SWMF_DIR=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV
 ####
 ## Collection of real-time infrastructure scripts
 ####
@@ -15,6 +15,11 @@ source /usr/share/Modules/init/bash
 ## By default, the IDL is not loaded
 module purge
 module load idl
+module use -a /swbuild/analytix/tools/modulefiles
+module load miniconda3/v4
+module load cuda/11.0
+module use -a /nasa/modulefiles/testing
+module load python3/3.8.8
 ####
 ## Now, the IDL is present in the derictory below
 ####
@@ -38,7 +43,7 @@ DATA_DIR=$RUN_DIR/RESULTS/SC
 
 ############## Use the full path to SSW
 ############## if modified, file AWSRT/sswidl.sh should be modified too 
-SSW=${HOME}/ssw
+SSW=/home6/ataktaki/ssw
 export SSW
 ############## Initialize ssw/idl interface
 $AWSRT/sswidl.sh
