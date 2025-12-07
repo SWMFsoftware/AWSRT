@@ -252,6 +252,16 @@ los ins idl_ascii		StringPlot
 -1.0			DtSavePlot
 sdo:aia		StringsInstrument
 
+#INSTRUMENT
+sdo:aia			StringInstrument
+0			OffsetAngle
+1.25			rSizeImage
+0			xOffset
+0			yOffset
+0			rOccult
+0			MuLimbDarkening
+512			nPix
+
 #SAVEPLOTNAME
 F                       UsePlotNameStep
 F                       UsePlotNameTime
