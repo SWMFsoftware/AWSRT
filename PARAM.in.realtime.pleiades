@@ -252,6 +252,11 @@ los ins idl_ascii		StringPlot
 -1.0			DtSavePlot
 sdo:aia		StringsInstrument
 
+#SAVEPLOTNAME
+F                       UsePlotNameStep
+F                       UsePlotNameTime
+T                       UsePlotNameDateTime
+
 #LOOKUPTABLE
 AiaXrt			NameTable
 load			NameCommand
@@ -330,16 +335,36 @@ T			UseBody
 1.0			IonCharge [e]
 1.0			ElectronTemperatureRatio
 
+#GRIDGEOMETRY
+roundcube               TypeGeometry
+250                     rRound0
+375                     rRound1
+
+   In gen coords the computational domain is rectangular box
+   -375 to 375
 #GRID
-1			nRootBlock1
-1			nRootBlock2
-1			nRootBlock3
--250.0			xMin
- 250.0			xMax
--250.0			yMin
- 250.0			yMax
--250.0			zMin
- 250.0			zMax
+3                       nRootBlock1
+3                       nRootBlock2
+3                       nRootBlock3
+-649.519                xMin
+ 649.519                xMax
+-649.519                yMin
+ 649.519                yMax
+-649.519                zMin
+ 649.519                zMax
+
+The AMR region below exactly coincides with the IH computational domain in
+   SWMF_MFLAMPA_2022_05_20
+
+#AMRREGION
+IHbox                   NameRegion
+box_gen                 StringShape
+-250.0                  Coord1MinBox
+-250.0                  Coord2MinBox
+-250.0                  Coord3MinBox
+250.0                   Coord1MaxBox
+250.0                   Coord2MaxBox
+250.0                   Coord3MaxBox
 
 #AMRREGION
 InnerShell		NameRegion
@@ -347,14 +372,27 @@ shell0			StringShape
 19.0			RadiusInner
 21.55			Radius
 
+#AMRREGION
+OuterShell              NameRegion
+shell0                  StringShape
+250.0                   RadiusInner
+650.0                   Radius
+
 #AMRCRITERIARESOLUTION
-4			nRefineCrit
+6			nRefineCrit
 dx			StringRefine
+8.0			RefineTo
+4.0			CoarsenFrom
+dx IHbox		StringRefine
 4.0			RefineTo
 2.0			CoarsenFrom
 dx Innershell		StringRefine
 0.5			RefineTo
 0.25			CoarsenFrom
+currentsheet -OuterShell	StringRefine
+0.5			CoarsenLimit
+0.5			RefineLimit
+1.0			MaxResolution
 currentsheet		StringRefine
 0.5			CoarsenLimit
 0.5			RefineLimit
@@ -371,14 +409,10 @@ conex0 sat:earth		StringShape
 
 #SATELLITE
 1			nSatellite
-VAR HGR trajrange		StringSatellite
-5000			DnOutput
--1			DtOutput
+MHD			StringSatellite
+-1			DnOutput
+-1.0			DtOutput
 IH/TRAJECTORY/earth.dat		NameTrajectoryFile
--14 d			StartTimeTraj
-14 d			EndTimeTraj
-1 h			DtTraj
-rho ux uy uz bx by bz p pe ehot I01 I02		NameSatelliteVars
 
 #GRIDRESOLUTION
 2.0			Resolution
@@ -475,6 +509,11 @@ rbody x_earth y_earth z_earth		NamePars
 buf MHD idl		StringPlot
 5000			DnSavePlot
 -1.0			DtSavePlot
+
+#SAVEPLOTNAME
+F                       UsePlotNameStep
+F                       UsePlotNameTime
+T                       UsePlotNameDateTime
 
 #ALIGNBANDU
 T			UseSaMhd
