@@ -33,10 +33,10 @@ source ${IDL_DIR}/bin/idl_setup.bash
 ## Declare and cleanup real-time run directory
 ####
 RUN_DIR=/nobackupp28/isokolov/run_realtime
-rm -f $RUN_DIR/PostProc.log_* $RUN_DIR/PARAM.in_* $RUN_DIR/RESULTS/runlog_*
-cd $RUN_DIR
-idl $AWSRT/plot_2d_slice_movie.pro > log_2d_slice_movie
-exit 0
+#rm -f $RUN_DIR/PostProc.log_* $RUN_DIR/PARAM.in_* $RUN_DIR/RESULTS/runlog_*
+#cd $RUN_DIR
+#idl $AWSRT/plot_2d_slice_movie.pro > log_2d_slice_movie
+#exit 0
 # Under developmen, more work is needed
 STOPTIME=$(date -d "23 hours 20 minutes" +%s)
 CURRENT_TIME=$(date +%s)
