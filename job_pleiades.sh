@@ -6,8 +6,8 @@
 #PBS -e /dev/null
 # To run on the 28-core Electra Broadwell nodes (128GB/node or 4.5GB/core)
 #PBS -l select=16:ncpus=28:model=bro_ele
-##PBS -q long
-#PBS -l walltime=08:00:00  
+#PBS -q long
+#PBS -l walltime=30:00:00  
 ####################################################
 # Loading the modules
 source /usr/share/Modules/init/bash
@@ -37,7 +37,7 @@ tar -czvf $RUNDIR/copyrun.tgz SC IH SP STDOUT *.in core
 cd $RUNDIR
 tar -xpzvf copyrun.tgz
 rm -f copyrun.tgz
-ln -s $SWMF_dir"/bin/SWMF.exe" ./SWMF_solar.exe
+cp $SWMF_dir"/bin/SWMF.exe" SWMF_solar.exe
 ln -s $SWMF_dir"/Param" .
 rm -f PostProc.pl
 ln -s $POSTPROC_dir/PostProc.pl ./PostProc.pl
@@ -61,8 +61,13 @@ perl -i -pe 's/USEMAGNETOGRAMDATE/#USEMAGNETOGRAMDATE/' HARMONICS.in
 perl -i -pe 's/harmonics/endmagnetogram/; s/\d+(\s+MaxOrder)/180$$1/; s/\d+(\s+nR)/100$$1/; s/\d+(\s+nLon)/360$$1/; s/\d+(\s+nLat)/180$$1/' HARMONICSGRID.in
 perl -i -pe 's/F/T/' HARMONICSGRID.in
 perl -i -pe 's/TILE/FILE/' HARMONICSGRID.in
+#####
+## AWSRT
+#####
+AWSRT=$SWMF_dir/AWSRT
+
 #####  Download the most recent GONG magnetogram and produces fits files
-python3  $SWMF_dir/AWSRT/get_magnetogram_pleiades.py
+python3  $AWSRT/get_magnetogram_pleiades.py
 #Copy the file in run_realtime/SC and expand it to create fitsfile
 cd $RUNDIR/SC
 tar -xzvf submission.tgz
@@ -76,10 +81,65 @@ mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
 mpiexec -n 16 ./CONVERTHARMONICS.exe > convert.log_`date +%y%m%d_%H%M`
 mv harmonics_bxyz.out ../harmonics_new_bxyz.out
 #Copy the PARAM.tmp file
-cp $SWMF_dir/AWSRT/PARAM.in.realtime.pleiades PARAM.tmp
+cp $AWSRT/PARAM.in.realtime.pleiades PARAM.tmp
 #Convert it as PARAM.in with the proper start time and include files
 $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 cd $RUNDIR
 mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
 ./Restart.pl -v
+######
+## Below job_restart_pleiades.sh is called
+######
+for M in AM PM
+do
+    for iHour in 1 2 3 4 5 6 7 8 9 10 11 12
+    do
+        cd $RUNDIR
+        if [ -f "AWSOMRT.STOP" ]; then
+            ./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
+            rm -f AWSOMRT.STOP
+            exit 0
+        fi
+        mv PARAM.in PARAM.in_`date +%y%m%d_%H%M`
+        rm -f harmonics_bxyz.out
+        mv  harmonics_new_bxyz.out harmonics_bxyz.out
+        cd $RUNDIR/SC
+        rm -f STARTMAGNETOGRAMTIME.in PARAM.tmp *.fits.gz *.fits
+        rm -f harmonics.log* fitsfile_01.out endmagnetogram*
+        mv ENDMAGNETOGRAMTIME.in STARTMAGNETOGRAMTIME.in
+        python3  $SWMF_dir/AWSRT/get_magnetogram_pleiades.py
+        cd $RUNDIR/SC
+        tar -xzvf submission.tgz
+        mv *.fits endmagnetogram
+        python3 remap_magnetogram.py endmagnetogram fitsfile
+        ./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
+        mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
+        if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
+        then
+            cd $RUNDIR
+            mv harmonics_bxyz.out harmonics_new_bxyz.out
+            ./PostProc.pl -M -cat RESULTS
+            # "Simulation system chased real time"
+            exit 0
+        fi
+        cp $SWMF_dir/AWSRT/PARAM.in.restart.pleiades PARAM.tmp
+        #Convert it as PARAM.in
+        $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
+        cd $RUNDIR
+        mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
+        if [ ! -f SWMF.SUCCESS ]; then
+            rm -f harmonics_new_bxyz.out
+            mv harmonics_bxyz.out harmonics_new_bxyz.out
+            rm -f SC/ENDMAGNETOGRAMTIME.in
+            mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
+            exit 0
+        fi
+        ./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
+	cat IH/IO2/sat_earth_*.sat>sat_earth.sat
+	cat IH/IO2/sat_sta_*.sat>sat_sta.sat
+        rm -rf RESTART_n000000
+        ./Restart.pl -v
+    done
+done
+./PostProc.pl -M -cat RESULTS
 exit 0

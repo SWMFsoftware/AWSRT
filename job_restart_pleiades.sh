@@ -28,59 +28,56 @@ RUNDIR=/nobackupp28/isokolov/run_realtime
 #
 ##### Remove stop files
 rm -f $RUNDIR/AWSOMRT.STOP $RUNDIR/SC/AWSOMRT.STOP 
-for iDay in 1 2
+for M in AM PM
 do
-    for M in AM PM
+    for iHour in 1 2 3 4 5 6 7 8 9 10 11 12
     do
-	for iHour in 1 2 3 4 5 6 7 8 9 10 11 12
-	do
+	cd $RUNDIR
+	if [ -f "AWSOMRT.STOP" ]; then
+	    ./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
+	    rm -f AWSOMRT.STOP
+	    exit 0
+	fi
+	mv PARAM.in PARAM.in_`date +%y%m%d_%H%M`
+	rm -f harmonics_bxyz.out
+	mv  harmonics_new_bxyz.out harmonics_bxyz.out
+	cd $RUNDIR/SC
+	rm -f STARTMAGNETOGRAMTIME.in PARAM.tmp *.fits.gz *.fits
+	rm -f harmonics.log* fitsfile_01.out endmagnetogram*
+	mv ENDMAGNETOGRAMTIME.in STARTMAGNETOGRAMTIME.in
+	python3  $SWMF_dir/AWSRT/get_magnetogram_pleiades.py
+	cd $RUNDIR/SC
+	tar -xzvf submission.tgz
+	mv *.fits endmagnetogram
+	python3 remap_magnetogram.py endmagnetogram fitsfile
+	./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
+	mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
+	if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
+	then
 	    cd $RUNDIR
-	    if [ -f "AWSOMRT.STOP" ]; then
-		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
-		rm -f AWSOMRT.STOP
-		exit 0
-	    fi
-	    mv PARAM.in PARAM.in_`date +%y%m%d_%H%M`
-	    rm -f harmonics_bxyz.out
-	    mv  harmonics_new_bxyz.out harmonics_bxyz.out
-	    cd $RUNDIR/SC
-	    rm -f STARTMAGNETOGRAMTIME.in PARAM.tmp *.fits.gz *.fits
-	    rm -f harmonics.log* fitsfile_01.out endmagnetogram*
-	    mv ENDMAGNETOGRAMTIME.in STARTMAGNETOGRAMTIME.in
-	    python3  $SWMF_dir/AWSRT/get_magnetogram_pleiades.py
-	    cd $RUNDIR/SC
-	    tar -xzvf submission.tgz
-	    mv *.fits endmagnetogram
-	    python3 remap_magnetogram.py endmagnetogram fitsfile
-	    ./HARMONICS.exe >harmonics.log_`date +%y%m%d_%H%M`
-	    mv MAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in
-	    if [ "$( diff STARTMAGNETOGRAMTIME.in ENDMAGNETOGRAMTIME.in )" == "" ]
-	    then
-		cd $RUNDIR
-		mv harmonics_bxyz.out harmonics_new_bxyz.out
-		./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
-		# "Simulation system chased real time"
-		exit 0
-	    fi
-	    cp $SWMF_dir/AWSRT/PARAM.in.restart.pleiades PARAM.tmp
-	    #Convert it as PARAM.in
-	    $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
-	    cd $RUNDIR
-	    mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
-	    if [ ! -f SWMF.SUCCESS ]; then
-		rm -f harmonics_new_bxyz.out
-		mv harmonics_bxyz.out harmonics_new_bxyz.out
-		rm -f SC/ENDMAGNETOGRAMTIME.in
-		mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
-		exit 0
-	    fi
-	    ./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
-	    cat IH/IO2/sat_earth_*.sat>sat_earth.sat
-	    cat IH/IO2/sat_sta_*.sat>sat_sta.sat
-	    rm -rf RESTART_n000000
-	    ./Restart.pl -v
-	done
+	    mv harmonics_bxyz.out harmonics_new_bxyz.out
+	    ./PostProc.pl -M -cat RESULTS
+	    # "Simulation system chased real time"
+	    exit 0
+	fi
+	cp $SWMF_dir/AWSRT/PARAM.in.restart.pleiades PARAM.tmp
+	#Convert it as PARAM.in
+	$SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
+	cd $RUNDIR
+	mpiexec -n 448 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
+	if [ ! -f SWMF.SUCCESS ]; then
+	    rm -f harmonics_new_bxyz.out
+	    mv harmonics_bxyz.out harmonics_new_bxyz.out
+	    rm -f SC/ENDMAGNETOGRAMTIME.in
+	    mv SC/STARTMAGNETOGRAMTIME.in SC/ENDMAGNETOGRAMTIME.in
+	    exit 0
+	fi
+	./PostProc.pl -n=16 >PostProc.log_`date +%y%m%d_%H%M`
+	cat IH/IO2/sat_earth_*.sat>sat_earth.sat
+	cat IH/IO2/sat_sta_*.sat>sat_sta.sat
+	rm -rf RESTART_n000000
+	./Restart.pl -v
     done
 done
-./PostProc.pl -M -cat RESULTS_`date +%y%m%d_%H%M`
+./PostProc.pl -M -cat RESULTS
 exit 0
