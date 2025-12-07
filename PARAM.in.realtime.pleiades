@@ -406,7 +406,7 @@ currentsheet -OuterShell	StringRefine
 currentsheet		StringRefine
 0.5			CoarsenLimit
 0.5			RefineLimit
-1.0			MaxResolution
+2.0			MaxResolution
 dx coneearth		StringRefine
 1.0			RefineTo
 0.5			CoarsenFrom

@@ -358,23 +358,46 @@ T			UseBody
 1.0			ElectronTemperatureRatio
 
 #AMRREGION
+IHbox                   NameRegion
+box_gen                 StringShape
+-250.0                  Coord1MinBox
+-250.0                  Coord2MinBox
+-250.0                  Coord3MinBox
+250.0                   Coord1MaxBox
+250.0                   Coord2MaxBox
+250.0                   Coord3MaxBox
+
+#AMRREGION
 InnerShell		NameRegion
 shell0			StringShape
 19.0			RadiusInner
 21.55			Radius
 
+#AMRREGION
+OuterShell              NameRegion
+shell0                  StringShape
+250.0                   RadiusInner
+650.0                   Radius
+
 #AMRCRITERIARESOLUTION
-4			nRefineCrit
+6			nRefineCrit
 dx			StringRefine
+8.0			RefineTo
+4.0			CoarsenFrom
+dx IHbox		StringRefine
 4.0			RefineTo
 2.0			CoarsenFrom
 dx Innershell		StringRefine
 0.5			RefineTo
 0.25			CoarsenFrom
-currentsheet		StringRefine
+currentsheet -OuterShell	StringRefine
 0.5			CoarsenLimit
 0.5			RefineLimit
 1.0			MaxResolution
+currentsheet		StringRefine
+0.5			CoarsenLimit
+0.5			RefineLimit
+2.0			MaxResolution
 dx coneearth		StringRefine
 1.0			RefineTo
 0.5			CoarsenFrom
