@@ -2,13 +2,21 @@
 ##############
 ############## Runs Xianyu's script to visualize EUV+X images
 ##############
-SWMF_DIR=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV
+##
+####
+## Set run directory in which to process the data
+if(! $?rundir ) then
+  RUN_DIR=/nobackupp28/isokolov/run_realtime
+else
+  RUN_DIR=$rundir
+endif
 ####
 ## Collection of real-time infrastructure scripts
 ####
-AWSRT=$SWMF_DIR/AWSRT
+############# VERSION FOR PLEIADES ##############################
+AWSRT=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV/AWSRT
 ####
-## Load IDL and init it for BASH
+## Load IDL and init it for BASH, Pleiades version
 ####
 source /usr/share/Modules/init/bash
 ####
@@ -24,35 +32,23 @@ module load python3/3.8.8
 ## Now, the IDL is present in the derictory below
 ####
 IDL_DIR=/nasa/idl/toss4/8.9/idl89
-####
-## Add IDL to PATH
-####
-export PATH="$PATH:$IDL_DIR/bin:$IDL_DIR/lib:$IDL_DIR/lib/utilities"
-####
-## Set IDL_PATH
-export IDL_PATH="$SWMF_DIR/share/IDL/General:<IDL_DEFAULT>"
-export IDL_STARTUP="$SWMF_DIR/share/IDL/General/idlrc"
 source ${IDL_DIR}/bin/idl_setup.bash
-####
-####
-## Declare and cleanup real-time run directory
-####
-RUN_DIR=/nobackupp28/isokolov/run_realtime
-
-DATA_DIR=$RUN_DIR/RESULTS/SC
-
 ############## Use the full path to SSW
 ############## if modified, file AWSRT/sswidl.sh should be modified too 
 SSW=/home6/ataktaki/ssw
 export SSW
+############ END OF VERSION FOR PLEIADES
 ############## Initialize ssw/idl interface
 $AWSRT/sswidl.sh
+#
+DATA_DIR=RESULTS/SC
 ############## for "all" aia synthetic images
+cd $RUN_DIR
 for namefile in $DATA_DIR/los_sdo_aia*.out
 do
     python3 $AWSRT/get_euv_obs.py ${namefile}
     echo ".r $AWSRT/swmf_read_xuv">idlrun
-    echo "swmf_read_xuv,'${namefile}',if_compare=1,data_dir='$RUN_DIR/TEMP' ">>idlrun
+    echo "swmf_read_xuv,'${namefile}',if_compare=1,data_dir='TMP' ">>idlrun
     echo "exit">>idlrun
     $SSW/gen/setup/ssw_idl "idlrun"
 done

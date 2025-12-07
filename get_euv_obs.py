@@ -19,7 +19,7 @@ list_aia=["aia-0131_1024x1024", "aia-0171_2048x2048", "aia-0193_1024x1024", "aia
 line_list=["131","171","193","211","335","3_Lines"]
 
 #modify to change the output directory (run_realtime directory used for realtime simulations)
-OUTPUT_BASE_PATH = '/nobackupp28/isokolov/run_realtime/TEMP'
+OUTPUT_BASE_PATH = 'TMP'
 
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"}
 
