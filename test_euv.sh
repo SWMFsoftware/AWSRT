@@ -5,11 +5,12 @@
 ##
 ####
 ## Set run directory in which to process the data
-if(! $?rundir ) then
+if [ "$1" == "" ]; then
   RUN_DIR=/nobackupp28/isokolov/run_realtime
 else
-  RUN_DIR=$rundir
-endif
+    echo "$1"
+  RUN_DIR=$1
+fi
 ####
 ## Collection of real-time infrastructure scripts
 ####
@@ -32,6 +33,7 @@ module load python3/3.8.8
 ## Now, the IDL is present in the derictory below
 ####
 IDL_DIR=/nasa/idl/toss4/8.9/idl89
+#export IDL_PATH="${IDL_DIR}/lib:$AWSRT:$SWMF_DIR/share/IDL/General:<IDL_DEFAULT>"
 source ${IDL_DIR}/bin/idl_setup.bash
 ############## Use the full path to SSW
 ############## if modified, file AWSRT/sswidl.sh should be modified too 
@@ -39,7 +41,7 @@ SSW=/home6/ataktaki/ssw
 export SSW
 ############ END OF VERSION FOR PLEIADES
 ############## Initialize ssw/idl interface
-$AWSRT/sswidl.sh
+#$AWSRT/sswidl.sh
 #
 DATA_DIR=RESULTS/SC
 ############## for "all" aia synthetic images
@@ -52,4 +54,3 @@ do
     echo "exit">>idlrun
     $SSW/gen/setup/ssw_idl "idlrun"
 done
-exit 0
