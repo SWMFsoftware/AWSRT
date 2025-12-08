@@ -1,0 +1,35 @@
+#!/bin/bash
+####
+## Collection of real-time infrastructure scripts
+####
+AWSRT==/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV/AWSRT
+####
+## Check if the previous run completed
+####
+PBSTASKS=$(/PBS/bin/qstat -u $USER -W o=Jobname,s)
+REGEX=SWMF_MFLAMPA_RT
+while [[ "$PBSTASKS" =~ $REGEX ]]
+do
+    sleep 60
+    PBSTASKS=$(/PBS/bin/qstat -u $USER -W o=Jobname,s)
+done
+####
+## Cleanup directory after previous run
+####
+RUN_DIR=/nobackupp28/isokolov/run_realtime
+rm -f $RUN_DIR/PostProc.log_* $RUN_DIR/PARAM.in_* $RUN_DIR/RESULTS/runlog_*
+####
+## Process EUV images
+####
+$AWSRT/test_euv.sh $RUN_DIR
+cd $RUN_DIR
+rm -f ssw_idl.*
+####
+## Store results from previous run
+####
+mv RESULTS RESULTS_`date +%y%m%d_%H%M`
+####
+## Queue the next 1-day simulation
+####
+/PBS/bin/qsub $AWSRT/job_recurrent_cron.sh
+exit 0
