@@ -1,5 +1,5 @@
 #!/bin/tcsh
-set AWSRT="$HOME/SWMF_NO_HISTORY/AWSRT"
+set AWSRT="/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV/AWSRT"
 if ("$1" == "") then
     set RUN_DIR="/nobakupp28/isokolov/run_realtime"
 else

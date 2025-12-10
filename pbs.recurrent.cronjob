@@ -2,7 +2,7 @@
 ####
 ## Collection of real-time infrastructure scripts
 ####
-AWSRT==/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV/AWSRT
+AWSRT=/home4/mpetrenk/MODELS/SH/SWMF_solar/SWMF_MFLAMPA_DEV/AWSRT
 ####
 ## Check if the previous run completed
 ####
