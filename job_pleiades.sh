@@ -12,7 +12,7 @@
 # Loading the modules
 source /usr/share/Modules/init/bash
 module purge
-module load comp-intel/2020.4.304
+module load comp-intel/2023.2.1
 module load mpi-hpe/mpt.2.30
 module load gcc/9.3
 module use -a /swbuild/analytix/tools/modulefiles
