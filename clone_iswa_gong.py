@@ -18,7 +18,7 @@ import argparse
 ISWA_DATA_URL = 'https://iswaa-webservice1.ccmc.gsfc.nasa.gov/iswa_data_tree/observation/solar/gong/mrzqs/'
 
 #modify to change the output directory
-ISWACLONE = '/Users/igorsok/ISWACLONE'
+ISWACLONE = '/home4/isokolov/ISWACLONE'
 
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"}
 
@@ -77,12 +77,13 @@ def get_highest(page_url, pattern, datetimemin, datetimemax, monthclone):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description=
-                                     "Use python3 get_magnetogram.py datetime")
+    parser = argparse.ArgumentParser(
+        description=
+        "Use python3 clone_iswa_gong.py datetimemin datetimemax")
     parser.add_argument('datetimemin', help=
-                        "Date_Time_Min in the format yymmdd't'hhmm")
+                        "Date&Time Min in the format yymmdd't'hhmm")
     parser.add_argument('datetimemax', help=
-                        "Date_Time_Min in the format yymmdd't'hhmm")
+                        "Date&Time Max in the format yymmdd't'hhmm")
     args = parser.parse_args()
     datetimemin = str(args.datetimemin)
     matchesmin=re.search(r'(\d\d\d\d\d\dt\d\d\d\d)',datetimemin)
