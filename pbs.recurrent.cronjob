@@ -18,6 +18,9 @@ done
 ####
 RUN_DIR=/nobackupp28/isokolov/run_realtime
 rm -f $RUN_DIR/PostProc.log_* $RUN_DIR/PARAM.in_* $RUN_DIR/RESULTS/runlog_*
+## Queue the next 1-day simulation
+####
+/PBS/bin/qsub $AWSRT/job_recurrent_cron.sh
 ####
 ## Process EUV images
 ####
@@ -29,7 +32,4 @@ rm -f ssw_idl.*
 ####
 mv RESULTS RESULTS_`date +%y%m%d_%H%M`
 ####
-## Queue the next 1-day simulation
-####
-/PBS/bin/qsub $AWSRT/job_recurrent_cron.sh
 exit 0
