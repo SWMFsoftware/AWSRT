@@ -10,11 +10,11 @@ import re
 import os
 import shutil
 import gzip
+from datetime import datetime,timedelta
 
 #modify to change the output directory
-ISWACLONE = '/Users/igorsok/ISWACLONE'
-OUTDIR = '/Users/igorsok/SUBMISSION'
-
+ISWACLONE = '/home4/isokolov/ISWACLONE'
+OUTDIR = '/home4/isokolov/SUBMISSION'
 
 def get_highest(page, pattern, datetime):
     last_match = ''
@@ -30,9 +30,23 @@ def get_highest(page, pattern, datetime):
 
 if __name__ == '__main__':
 
-    datetime = input()
-    print(datetime)
-    matches=re.search(r'(\d\d\d\d\d\dt\d\d\d\d)',datetime)
+    DATETIMEFILE = os.path.join(OUTDIR, "datetime.txt")
+    f = open(DATETIMEFILE,'r')
+    datetime1=f.readline()[:-1]
+    f.close()
+    print(datetime1)
+    format_pattern = "%y%m%dt%H%M"
+    parsed_datetime = datetime.strptime(datetime1, format_pattern)
+    print(f"Parsed datetime object: {parsed_datetime}")
+    hour1 = timedelta(hours=1)
+    parsed_datetime = parsed_datetime + hour1
+    print(f"Parsed datetime object: {parsed_datetime}")
+    fid = open(DATETIMEFILE,'w')
+    formatted_string_1 = parsed_datetime.strftime(format_pattern)
+    print(f"Formatted string 1: {formatted_string_1}")
+    fid.write(formatted_string_1+'\n')
+    fid.close()
+    matches=re.search(r'(\d\d\d\d\d\dt\d\d\d\d)',datetime1)
     year = '20'+matches.group(1)[0:2]
     month = matches.group(1)[2:4]
     ISWAYEAR=ISWACLONE.rstrip('/') + '/' + str(year)
