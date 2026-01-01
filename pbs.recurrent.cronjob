@@ -24,7 +24,7 @@ rm -f $RUN_DIR/PostProc.log_* $RUN_DIR/PARAM.in_* $RUN_DIR/RESULTS/runlog_*
 ####
 ## Process EUV images
 ####
-$AWSRT/test_euv.tcsh $RUN_DIR
+$AWSRT/test_euv.tcsh $RUN_DIR> /dev/null 2>&1
 cd $RUN_DIR
 rm -f ssw_idl.*
 ####
