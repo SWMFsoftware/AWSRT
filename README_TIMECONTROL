@@ -1,0 +1,18 @@
+This document describes how time is assigned to the magnetogram.
+
+1. In job_pleiades.sh the command
+   perl -i -pe 's/USEMAGNETOGRAMDATE/#USEMAGNETOGRAMDATE/' HARMONICS.in
+   sets up parameter UseMagnetogramDate to .true. This was done since
+   parameter CRNOW was found to be incorrect in the NSO-GONG magnetograms:
+   in the sequence of two hourly magnetograms for same value of the left
+   map margin longitude the later magnetogram has the smaller value of CRNOW:
+   Mrzqs250301t1514c2295_311.fits.gz    CRNOW=2294.970584
+   Mrzqs250301t1604c2295_311.fits.gz   CRNOW=2294.96932907
+   Therefore, since March 2025 the magnetogram time is derived from the
+   datetime stamp.
+2. For UseMagnetogramDate = .true. subroutine read_orig_magnetogram reads
+   the header of file fitsfile_01.out. It finds the beginning of name
+   'MagnetogramDate =', skips 17 symbols and reads the datetime in the format
+   'YYYY-MM-DD"T"HH-MM-SS'
+3. So, to produce the missing magnetogram for later time, in the file
+   fitsfile_01.out the datetime "MagnetogramDate =" should advanced by 1 hour.
