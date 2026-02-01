@@ -84,7 +84,6 @@ for d in "${event_dirs[@]}"; do
   --cme-event-dir "$d" 
 
   cd $SWMF_dir/$RUNDIR
-  ### /PBS/bin/qsub job_realtime_mittens.pfe
   /PBS/bin/qsub job_CME.sh
 
   exit 0

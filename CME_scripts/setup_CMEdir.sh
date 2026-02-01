@@ -69,14 +69,6 @@ ln -s $SWMF_dir/GM/BATSRUS/Param/HELIOSPHERE ./Param
 rm -f PostIDL.exe
 ln -s $SWMF_dir/bin/PostIDL.exe ./PostIDL.exe
 
-# Added by A. Shane 1/28/26 - MITTENS
-MITTENS_dir=/nobackupp28/gkoban/Realtime/SWMF/PT/MITTENS
-cd $RUNDIR
-mkdir -p PT/IO2
-ln -s $MITTENS_dir"/Param/PARAM.in.realtime.mittens" ./PARAM.in.realtime.mittens
-ln -s $SWMF_dir"/bin/MITTENS.exe" ./MITTENS.exe
-ln -s $MITTENS_dir"/job_realtime_mittens.pfe" ./job_realtime_mittens.pfe
-
 #copying and linking the RESTART files
 cd $RUNDIR
 cp -a $CYCLE_DIR/harmonics_bxyz.out $RUNDIR/
