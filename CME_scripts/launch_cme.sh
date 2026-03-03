@@ -1,13 +1,14 @@
 #!/bin/bash
 #PBS -S /bin/bash
-#PBS -N Realtime_test
+#PBS -N Realtime_CME
 #PBS -W group_list=s2994
 #PBS -o /dev/null
 #PBS -e /dev/null
 # To run on the 28-core Electra Broadwell nodes (128GB/node or 4.5GB/core)
 ### PBS -l select=33:ncpus=28:model=bro_ele
-#PBS -l select=50:ncpus=40:model=cas_ait
-#PBS -q long
+#PBS -l select=51:ncpus=40:model=cas_ait
+### PBS -q long
+#PBS -q R23881841
 ### PBS -q devel
 #PBS -l walltime=10:00:00
 ####################################################
@@ -22,12 +23,12 @@ module load gcc/9.3
 module use -a /swbuild/analytix/tools/modulefiles
 module load miniconda3/v4
 
-#Fix stack size issue
+# Fix stack size issue
 ulimit -s unlimited
 
-exec >> /nobackupp28/gkoban/Realtime/SWMF/output_test.log 2>&1
+exec >> /nobackupp28/gkoban/SWMF_AWSRT/SWMF/output_CME.log 2>&1
 
-SWMF_dir=/nobackupp28/gkoban/Realtime/SWMF
+SWMF_dir=/nobackupp28/gkoban/SWMF_AWSRT/SWMF
 RUNDIR="{{RUNDIR}}"
 SUBMISSION_DATA_DIR="{{CME_EVENT_DIR}}"
 
@@ -40,27 +41,36 @@ python3 $SWMF_dir/make_CMEtime.py \
   --cme-json $CME_JSON \
   --run-dir  $RUNDIR
 python3 $SWMF_dir/make_amr_settings.py --run-dir $RUNDIR
+python3 $SWMF_dir/make_stoptime.py $RUNDIR
 
 cp $SWMF_dir/PARAM.in.gap $RUNDIR/SC/PARAM.tmp
 cd $RUNDIR/SC
 $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 cd $RUNDIR
 
-#run gaprun
+# run gaprun
 mpiexec -n 2000 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`
 
-rm -rf RESTART_n000000
+mv RESTART_n000000/ RESTART_beforegaprun/
 ./Restart.pl -v
 
 #start CME run
 cp $CME_IN "$RUNDIR/SC/CME.in"
+cp $RUNDIR/SP/IO2/LONLAT.earth $RUNDIR/SC
 cp $SWMF_dir/PARAM.in.CME $RUNDIR/SC/PARAM.tmp
 cd $RUNDIR/SC
 $SWMF_dir/share/Scripts/ParamConvert.pl PARAM.tmp ../PARAM.in
 
 cd $RUNDIR
+
+touch $RUNDIR/CME_runstarted
+
 # Start PostProc.pl in the background
-### ./PostProc.pl -n=16 -r=600 > PostProc.log 2>&1 &
+./PostProc.pl -n=16 -r=600 > PostProc.log 2>&1 &
+
+### $SWMF_dir/sync_spio2.sh "$RUNDIR" \
+###     > "$RUNDIR/sync_spio2.log" 2>&1 &
+### SYNC_PID=$!
 
 # launch CME simulation
 mpiexec -n 2000 ./SWMF_solar.exe > runlog_`date +%y%m%d_%H%M`

@@ -14,6 +14,7 @@ Begin session: 1
 #COMPONENTMAP
 SC  0 -1  1		CompMap
 IH  0 -1  1		CompMap
+SP  0  647  1		CompMap
 
 #ECHO
 T			DoEcho
@@ -27,6 +28,7 @@ T			IsTimeAccurate
 #INCLUDE
 RESTART.in
 
+#STARTTIME
 #INCLUDE
 ENDMAGNETOGRAMTIME.in
 
@@ -324,6 +326,17 @@ T			UseSaMhd
 1.1			RsourceSaMhd
 5.5			RminSaMhd
 
+#PARTICLELINE
+T			UseParticles
+1000			nFieldLineMax
+2000			nParticlePerLine
+-1			SpaceStepMin
+-1			SpaceStepMax
+import			InitMode
+T			UseBRAlignment
+0.7			CosBRAngleMax
+F			UseBUAlignment
+
 #END_COMP SC -----------------------------------------------------------------
 
 #BEGIN_COMP IH ---------------------------------------------------------------
@@ -540,7 +553,21 @@ T			UseSaMhd
 0.0			RsourceSaMhd
 0.0			RminSaMhd
 
+#PARTICLELINE
+T			UseParticles
+1000			nFieldLineMax
+2000			nParticlePerLine
+-1			SpaceStepMin
+-1			SpaceStepMax
+import			InitMode
+F			UseBRAlignment
+F			UseBUAlignment
+
 #END_COMP IH -----------------------------------------------------------------
+
+#COMPONENT
+SP			NameComp
+F			UseComp
 
 #COUPLE1
 SC			NameSource
@@ -548,6 +575,85 @@ IH			NameTarget
 -1			DnCouple
 2 min			DtCouple
 
+#INCLUDE
+STOPTIME.in
+
+End session: 1
+#RUN ##########################################################################
+Begin session: 2
+one-minute session with SP
+
+#COMPONENT
+SC			NameComp
+T			UseComp
+
+#COMPONENT
+SP			NameComp
+T			UseComp
+
+#COUPLE1
+SC			NameSource
+IH			NameTarget
+-1.0			DnCouple
+30			DtCouple
+
+#COUPLE1
+SC			NameSource
+SP			NameTarget
+-1			DnCouple
+30			DtCouple
+
+#COUPLE1
+IH			NameSource
+SP			NameTarget
+-1			DnCouple
+30			DtCouple
+
+#FIELDLINE
+SP			NameTarget
+2			nSource
+SC			NameSource
+1.105			RScMin
+21			RScMax
+IH			NameSource
+19			RIhMin
+640			RIhMax
+
+#COUPLEFIELDLINE
+-1.0			DnCouple
+1			DtCouple
+
+#BEGIN_COMP SP ---------------------------------------------------------------
+
+#GRIDNODE
+36                      nLat
+18                      nLon
+
+#DORUN
+T			DoRun
+
+#ORIGIN
+2.5                     ROrigin
+5                       LonMin
+-85                     LatMin
+355                     LonMax
+85                      LatMax
+
+#TRACESHOCK
+F                       DoTraceShock
+
+#SATELLITE
+1                       nSatellite
+SP/TRAJECTORY/earth.dat         NameTrajectoryFile
+
+#SAVEPLOT
+1                       nFileOut
+mh2d flux ascii         StringPlot
+215.0                   Radius
+
+#END_COMP SP -----------------------------------------------------------------
+
+#ENDTIME
 #INCLUDE
 CMETIME.in
 

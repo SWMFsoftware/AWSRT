@@ -1,3 +1,17 @@
+#!/bin/bash
+#PBS -S /bin/bash
+#PBS -N Realtime_test
+#PBS -W group_list=s2994
+#PBS -o /dev/null
+#PBS -e /dev/null
+# To run on the 28-core Electra Broadwell nodes (128GB/node or 4.5GB/core)
+### PBS -l select=33:ncpus=28:model=bro_ele
+#PBS -l select=24:ncpus=40:model=cas_ait
+#PBS -q long
+#PBS -l walltime=10:00:00
+####################################################
+
+
 # Loading the modules
 source /usr/share/Modules/init/bash
 ### module purge
@@ -39,7 +53,7 @@ fi
 echo "CYCLE_DIR = $CYCLE_DIR"
 echo "RUNDIR     = $RUNDIR"
 
-SWMF_dir=/nobackupp28/gkoban/Realtime/SWMF
+SWMF_dir=/nobackupp28/gkoban/SWMF_AWSRT/SWMF
 POSTPROC_dir=$SWMF_dir/share/Scripts/
 ####Create run_realtime directory####
 rm -rf $RUNDIR
@@ -91,4 +105,11 @@ cd $RUNDIR/IH
 rm -rf restartIN
 ln -s ../RESTART_n000000/IH restartIN
 
+# Added by A. Shane 1/28/26 - MITTENS
+MITTENS_dir=/nobackupp28/gkoban/SWMF_AWSRT/SWMF/PT/MITTENS
+cd $RUNDIR
+mkdir -p PT/IO2
+ln -s $MITTENS_dir"/Param/PARAM.in.realtime.mittens" ./PARAM.in.realtime.mittens
+ln -s $SWMF_dir"/bin/MITTENS.exe" ./MITTENS.exe
+ln -s $MITTENS_dir"/job_realtime_mittens.pfe" ./job_realtime_mittens.pfe
 
