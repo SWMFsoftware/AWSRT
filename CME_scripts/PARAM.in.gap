@@ -14,7 +14,7 @@ Begin session: 1
 #COMPONENTMAP
 SC  0 -1  1		CompMap
 IH  0 -1  1		CompMap
-SP  0  647  1		CompMap
+SP  0  300  1		CompMap
 
 #ECHO
 T			DoEcho
@@ -93,13 +93,7 @@ T			UseFieldLineThreads
 #ENFORCECFL
 T			DoEnforceCfl
 
-#LOOKUPTABLE
-B0			NameTable
-load			NameCommand
-harmonics_bxyz.out		NameFile
-real4			TypeFile
-
-#NEWHARMONICSFILE
+#HARMONICSFILE
 SC/endmagnetogram.dat		NameHarmonicsFileNew
 
 HELIOUPDATEB0
@@ -194,7 +188,7 @@ conex0 sat:earth		StringShape
 CME_AMR.in
 
 #AMRCRITERIARESOLUTION
-5			nRefineCrit
+6			nRefineCrit
 dphi			StringRefine
 3.0			RefineTo
 1.5			CoarsenFrom
@@ -211,6 +205,9 @@ dphi CMEbox		StringRefine
 dphi coneearth		StringRefine
 1.5			RefineTo
 0.75			CoarsenFrom
+dphi CMEbox -OuterShell		StringRefine
+0.75			RefineTo
+0.4			CoarsenFrom
 
 #SATELLITE
 2			nSatellite
@@ -253,8 +250,10 @@ T			UseLogRhoLimiter
 T			UseLogPLimiter
 F			UseRhoRatioLimiter
 
-#NONCONSERVATIVE
-T			UseNonConservative
+#CONSERVATIVECRITERIA.           
+1                       nConservCrit
+r                       TypeConservCrit    
+2.0                     rConserv                  
 
 #MESSAGEPASS
 all			TypeMessagePass
@@ -517,7 +516,7 @@ mc3			TypeLimiter
 1.2			LimiterBeta
 
 #NONCONSERVATIVE
-T			UseNonConservative
+F			UseNonConservative
 
 #TIMESTEPPING
 2			nStage
@@ -626,8 +625,8 @@ IH			NameSource
 #BEGIN_COMP SP ---------------------------------------------------------------
 
 #GRIDNODE
-36                      nLat
-18                      nLon
+18                      nLat
+36                      nLon
 
 #DORUN
 T			DoRun

@@ -24,11 +24,14 @@ Time-accurate SC with Threaded-Field-Line Low Corona, IH, MFLAMPA+SEP
 
 #BEGIN_COMP SP -------------------------------------------------------------
 
+#INCLUDE
+SP/restartIN/restart.H
+
 #GRIDNODE
 18			nLat
 36			nLon
 
-#ORIGIN
+ORIGIN
 2.5			ROrigin
 5			LonMin
 -85			LatMin
@@ -117,19 +120,10 @@ SP			NameTarget
 #INCLUDE
 RESTART.in
 
-#TIMESIMULATION
-0.0			tSimulation
-
-#NSTEP
-0			nStep
-
 #SAVERESTART
 T			DoSaveRestart
 -1			DnSaveRestart
 1 h			DtSaveRestart
-
-#RESTARTOUTDIR
-SWMF_RESTART.YYYYMMDD_HHMMSS            NameRestartOutDir
 
 #TEST
 init_axes		StringTest
@@ -144,16 +138,6 @@ one			StringRestartOutFile
 
 #GRIDBLOCKALL
 25000			MaxBlock
-
-#STARTTIME
-#INCLUDE
-CMETIME.in
-
-#TIMESIMULATION
-0.0			tSimulation
-
-#NSTEP
-0			nStep
 
 #SAVEPLOTNAME
 F			UsePlotNameStep
@@ -206,10 +190,7 @@ T			UseB0Source
 T			UseDivFullBSource
 
 #USERSWITCH
-+init +ic +perturb			StringSwitch
-
-#INCLUDE
-CME.in 
++init +ic -perturb			StringSwitch 
 
 #INCLUDE
 CORONALHEATING.in
@@ -361,15 +342,15 @@ none			TypeBc6
 
 #SAVEPLOT
 2			nPlotFile
-z=0 VAR idl_ascii		StringPlot
+z=0 VAR idl_ascii	StringPlot
 -1			DnSavePlot
-10 m			DtSavePlot
+0.5 h			DtSavePlot
 -1.0			DxSavePlot
 {MHD} b1x b1y b1z te ti		NameVars
 {default}		NamePars
 los ins idl_ascii		StringPlot
 -1			DnSavePlot
-120			DtSavePlot
+60			DtSavePlot
 soho:c2 soho:c3 sdo:aia		StringsInstrument
 
 #INSTRUMENT
@@ -425,16 +406,6 @@ F			UseBUAlignment
 
 #INCLUDE
 IH/restartIN/restart.H
-
-#STARTTIME
-#INCLUDE
-CMETIME.in
-
-#TIMESIMULATION
-0.0			tSimulation
-
-#NSTEP
-0			nStep
 
 #SAVEPLOTNAME
 F			UsePlotNameStep
