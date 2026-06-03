@@ -199,7 +199,7 @@ dphi coneearth		StringRefine
 0.75			CoarsenFrom
 
 #SATELLITE
-2			nSatellite
+4			nSatellite
 MHD			StringSatellite
 -1			DnOutput
 -1.0			DtOutput
@@ -208,6 +208,15 @@ MHD			StringSatellite
 -1			DnOutput
 -1.0			DtOutput
 SC/TRAJECTORY/sta.dat		NameTrajectoryFile
+MHD                     StringSatellite
+-1                      DnOutput
+-1.0                    DtOutput
+SC/TRAJECTORY/psp.dat           NameTrajectoryFile
+MHD                     StringSatellite
+-1                      DnOutput
+-1.0                    DtOutput
+SC/TRAJECTORY/solo.dat           NameTrajectoryFile
+
 
 #GRIDRESOLUTION
 1.5			Resolution
@@ -267,7 +276,7 @@ none			TypeBc5
 none			TypeBc6
 
 #SAVEPLOT
-2			nPlotFile
+3			nPlotFile
 z=0 VAR idl		StringPlot
 -1			DnSavePlot
 0.5 h			DtSavePlot
@@ -278,6 +287,11 @@ los ins idl_ascii		StringPlot
 -1			DnSavePlot
 0.5 h			DtSavePlot
 sta:euvi sdo:aia		StringsInstrument
+3d VAR tcp      	StringPlot
+-1              	DnSavePlot
+1 h            	DtSavePlot
+{MHD} b1x b1y b1z te ti         NameVars
+{default}               NamePars
 
 #INSTRUMENT
 sdo:aia			StringInstrument
@@ -409,17 +423,28 @@ conex0 sat:earth		StringShape
 80			Radius
 
 #SATELLITE
-2			nSatellite
+4			nSatellite
 VAR			StringSatellite
 -1			DnOutput
-10 min			DtOutput
+1 min			DtOutput
 IH/TRAJECTORY/earth.dat		NameTrajectoryFile
 n ux uy uz bx by bz t I01 I02		NameSatelliteVars
 VAR    	     	      	StringSatellite
 -1			DnOutput
-10 min			DtOutput
+1 min			DtOutput
 IH/TRAJECTORY/sta.dat		NameTrajectoryFile
 n ux uy uz bx by bz t I01 I02		NameSatelliteVars
+VAR                     StringSatellite
+-1                      DnOutput
+1 min                   DtOutput
+IH/TRAJECTORY/psp.dat           NameTrajectoryFile
+n ux uy uz bx by bz t I01 I02           NameSatelliteVars
+VAR                     StringSatellite
+-1                      DnOutput
+1 min                   DtOutput
+IH/TRAJECTORY/solo.dat           NameTrajectoryFile
+n ux uy uz bx by bz t I01 I02           NameSatelliteVars
+
 
 #GRIDRESOLUTION
 2.0			Resolution
@@ -516,6 +541,11 @@ z=0 VAR idl_ascii		StringPlot
 -1.0			DxSavePlot
 rho ux uy uz ti te bx by bz I01 I02 p pe		NameVars
 rbody x_earth y_earth z_earth		NamePars
+3d VAR tcp              StringPlot
+-1                      DnSavePlot
+1 h             DtSavePlot
+{MHD} b1x b1y b1z te ti         NameVars
+{default}               NamePars
 
 #ALIGNBANDU
 T			UseSaMhd
