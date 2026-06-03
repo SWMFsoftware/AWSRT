@@ -534,7 +534,7 @@ rho mx my mz p pe pmin pmax urmin urmax		NameLogVars
 F			DoSaveInitial
 
 #SAVEPLOT
-1			nPlotFile
+2			nPlotFile
 z=0 VAR idl_ascii		StringPlot
 -1			DnSavePlot
 1 h			DtSavePlot
