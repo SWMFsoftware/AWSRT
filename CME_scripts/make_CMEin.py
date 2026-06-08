@@ -5,6 +5,9 @@ Generate CME_AMR.in and IHCME_AMR.in from CME.in (#CME block only).
 Usage:
   python make_CMEin.py
   python make_CMEin.py --infile /path/to/CME.in --outdir /path/to/output
+
+Author: Gergely Koban
+
 """
 
 from __future__ import annotations

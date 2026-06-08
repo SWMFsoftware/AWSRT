@@ -3,6 +3,12 @@ import argparse
 from pathlib import Path
 import sys
 
+"""
+Populates the jobscript template with the actual paths
+for the CME folder, run folder, and SWMF directory.
+
+Author: Gergely Koban
+"""
 
 def die(msg: str, code: int = 2) -> "None":
     print(f"ERROR: {msg}", file=sys.stderr)

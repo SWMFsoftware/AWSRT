@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+####################################################
+# This script is responsible for syncing the results
+# from the CME simulation's SP folder to solstice.
+# The sync frequency and the maximum number of idle
+# sessions (before exiting) can be modified.
+
+# Authors: Nikolett Biro and Gergely Koban
+###################################################
+
 # ---- CONFIG ----
 SRC_BASE="${1:-}"
 SRC_DIR="${SRC_BASE}/SP/IO2"
 DEST="gergelyk@solstice:/data/CLEAR/nikolett/REALTIME"
 INTERVAL=600   # 10 minutes
-MAX_IDLE=2
+MAX_IDLE=8
 
 # ---- SANITY CHECKS ----
 if [[ -z "${SRC_BASE}" ]]; then

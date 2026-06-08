@@ -9,6 +9,8 @@ STOPTIME.in format:
 -1                     MaxIter
 <N> m                  TimeMax
 #END
+
+Author: Gergely Koban
 """
 
 from __future__ import annotations

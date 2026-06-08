@@ -7,6 +7,9 @@ Example CME.json:
 
 Writes:
 <run_dir>/SC/CMETIME.in
+
+Author: Gergely Koban
+
 """
 
 from __future__ import annotations
@@ -66,12 +69,12 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Generate SC/CMETIME.in from CME.json")
     p.add_argument(
         "--cme-json",
-        default="/nobackupp28/gkoban/Realtime/SWMF/SUBMISSION_DATA/CME.json",
+        default="/nobackupp28/gkoban/SWMF_AWSRT/SWMF/SUBMISSION_DATA/CME.json",
         help="Path to CME.json (default: %(default)s)",
     )
     p.add_argument(
         "--run-dir",
-        default="/nobackupp28/gkoban/Realtime/SWMF/run_realtime_Event1",
+        default="/nobackupp28/gkoban/SWMF_AWSRT/SWMF/run_realtime_Event1",
         help="Run directory containing SC/ (default: %(default)s)",
     )
     p.add_argument(

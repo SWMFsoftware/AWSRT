@@ -8,6 +8,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Tuple
 
+"""
+This script is responsible for finding the latest checkpoint
+(with the restart file) before the CME time.
+
+Author: Gergely Koban
+"""
 
 CYCLE_RE = re.compile(r"^cycle_(\d{6})_(\d{6})$")
 

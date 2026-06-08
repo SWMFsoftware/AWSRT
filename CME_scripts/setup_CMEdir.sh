@@ -11,6 +11,14 @@
 #PBS -l walltime=10:00:00
 ####################################################
 
+#####################################################
+# This script sets up the run directory for the CME
+# run. Copies over the necessary files from a generic
+# run directory "run" inside the SWMF folder.
+
+# Written by Gergely Koban, 
+# Based on the ogirinal by Igor Sokolov
+#####################################################
 
 # Loading the modules
 source /usr/share/Modules/init/bash
@@ -25,7 +33,7 @@ module load miniconda3/v4
 ulimit -s unlimited
 
 
-exec >> /nobackupp28/gkoban/Realtime/SWMF/output.log 2>&1
+exec >> /nobackupp28/gkoban/SWMF_AWSRT/SWMF/output.log 2>&1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

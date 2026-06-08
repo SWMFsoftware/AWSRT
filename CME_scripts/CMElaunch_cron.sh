@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+################################################
+# The main script for the CME pipeline. Checks
+# for a new CME, and then creates a run folder
+# for it, copies over the restart files, puts
+# the job into the queue, starts syncing results
+# Author: Gergely Koban
+###############################################
+
 source /usr/share/Modules/init/bash
 
 # Standard aliases
@@ -128,11 +136,19 @@ for d in "${event_dirs[@]}"; do
   --run-dir $SWMF_dir/$RUNDIR \
   --cme-event-dir "$d" 
 
+    python3 $SWMF_dir/make_jobscript.py \
+  --swmf-dir $SWMF_dir \
+  --template "restart_cme.sh" \
+  --run-dir $SWMF_dir/$RUNDIR \
+  --cme-event-dir "$d" \
+  --out-name "job_CME_restart.sh"
+
   cd $SWMF_dir/$RUNDIR
   #/PBS/bin/qsub job_CME.sh
 
   jobID=$(/PBS/bin/qsub job_CME.sh)
   jobID=${jobID%%.*}
+  printf "%s\n" "$jobID" >> jobid_history.txt
 
   ### sleep 600
   ### /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_spio2.sh "$SWMF_dir/$RUNDIR"
@@ -140,7 +156,7 @@ for d in "${event_dirs[@]}"; do
   LOG="/nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_spio2_test.log"
   mkdir -p "$(dirname "$LOG")"
   
-  if wait_for_job_running "$jobID" "$LOG" 60 14400; then
+  if wait_for_job_running "$jobID" "$LOG" 60 28800; then
 
    marker="$SWMF_dir/$RUNDIR/CME_runstarted"
    marker_timeout=2400   # seconds
@@ -157,8 +173,14 @@ for d in "${event_dirs[@]}"; do
    done
 
    echo "$(date -Is) starting sync for $SWMF_dir/$RUNDIR" >>"$LOG" 2>&1
-   /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_spio2.sh "$SWMF_dir/$RUNDIR" >>"$LOG" 2>&1
    /PBS/bin/qsub "$SWMF_dir/$RUNDIR/job_realtime_mittens.pfe" >>"$LOG" 2>&1
+   /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_spio2.sh "$SWMF_dir/$RUNDIR" >>"$LOG" 2>&1 &
+
+   sleep 120
+
+   /bin/csh /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_outputs.csh "$SWMF_dir/$RUNDIR" "PT"  >>"$LOG" 2>&1 &
+   /bin/csh /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_outputs.csh "$SWMF_dir/$RUNDIR" "IH"  >>"$LOG" 2>&1 &
+   /bin/csh /nobackupp28/gkoban/SWMF_AWSRT/SWMF/sync_outputs.csh "$SWMF_dir/$RUNDIR" "SC"  >>"$LOG" 2>&1 &
 
   else
     rc=$?

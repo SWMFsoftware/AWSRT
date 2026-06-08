@@ -7,6 +7,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
+"""
+This script governs the amr settings for the gaprun. 
+It creates AMR_settings.in so that the AMR runs three
+times in the gaprun, and the gaprun ends at the CME time
+
+Author: Gergely Koban
+"""
 
 KEYS = {
     "iYear": "year",
