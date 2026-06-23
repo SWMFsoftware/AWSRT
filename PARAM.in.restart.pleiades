@@ -277,7 +277,7 @@ none			TypeBc6
 
 #SAVEPLOT
 3			nPlotFile
-z=0 VAR idl		StringPlot
+z=0 VAR idl_ascii	StringPlot
 -1			DnSavePlot
 0.5 h			DtSavePlot
 -1.0			DxSavePlot
@@ -424,7 +424,7 @@ conex0 sat:earth		StringShape
 
 #SATELLITE
 4			nSatellite
-VAR			StringSatellite
+VAR GSM			StringSatellite
 -1			DnOutput
 1 min			DtOutput
 IH/TRAJECTORY/earth.dat		NameTrajectoryFile
