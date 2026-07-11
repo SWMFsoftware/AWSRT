@@ -618,9 +618,6 @@ IH			NameSource
 19			RIhMin
 640			RIhMax
 
-#COUPLEFIELDLINE
--1.0			DnCouple
-1			DtCouple
 
 #BEGIN_COMP SP ---------------------------------------------------------------
 
