@@ -38,10 +38,10 @@ Time-accurate SC with Threaded-Field-Line Low Corona, IH, MFLAMPA+SEP
 #ADVECTION
 F                                       UsePoissonBracket
 
-#LOWERENDBC
+LOWERENDBC
 F                                       UseLowerEndBc
 
-#UPPERENDBC
+UPPERENDBC
 F                                       UseUpperEndBc
 
 #MOMENTUMBC
