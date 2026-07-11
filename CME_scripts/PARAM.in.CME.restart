@@ -41,10 +41,10 @@ ORIGIN
 #ADVECTION
 F                                       UsePoissonBracket
 
-#LOWERENDBC
+LOWERENDBC
 F                                       UseLowerEndBc
 
-#UPPERENDBC
+UPPERENDBC
 F                                       UseUpperEndBc
 
 #MOMENTUMBC
