@@ -404,7 +404,7 @@ shell0                  StringShape
 IHCME_AMR.in
 
 #AMRCRITERIARESOLUTION
-6			nRefineCrit
+8			nRefineCrit
 dx			StringRefine
 8.0			RefineTo
 4.0			CoarsenFrom
