@@ -413,7 +413,7 @@ sphere0			StringShape
 dx			StringRefine
 16.0			RefineTo
 8.0			CoarsenFrom
-marsorbit		StringRefine
+dx marsorbit		StringRefine
 8.0			RefineTo
 4.0			CoarsenFrom
 dx IHbox		StringRefine
