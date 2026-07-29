@@ -14,7 +14,7 @@ Begin session: 1
 #COMPONENTMAP
 SC  0 -1  1		CompMap
 IH  0 -1  1		CompMap
-SP  0  300  1			CompMap
+SP  0  647  1			CompMap
 
 #ECHO
 T			DoEcho
@@ -38,11 +38,11 @@ Time-accurate SC with Threaded-Field-Line Low Corona, IH, MFLAMPA+SEP
 #ADVECTION
 F                                       UsePoissonBracket
 
-LOWERENDBC
-F                                       UseLowerEndBc
+#LOWERENDBC
+escape                            TypeLowerEndBc
 
-UPPERENDBC
-F                                       UseUpperEndBc
+#UPPERENDBC
+escape                        	TypeUpperEndBc
 
 #MOMENTUMBC
 #INCLUDE
@@ -128,7 +128,7 @@ T			DoSaveRestart
 -1			DnSaveRestart
 1 h			DtSaveRestart
 
-#RESTARTOUTDIR
+RESTARTOUTDIR
 SWMF_RESTART.YYYYMMDD_HHMMSS            NameRestartOutDir
 
 #TEST
@@ -523,7 +523,7 @@ conex0 sat:earth		StringShape
 
 #SATELLITE
 2			nSatellite
-VAR			StringSatellite
+VAR GSM			StringSatellite
 -1			DnOutput
 10 min			DtOutput
 IH/TRAJECTORY/earth.dat		NameTrajectoryFile

@@ -25,11 +25,13 @@
 # Loading the modules
 source /usr/share/Modules/init/bash
 ### module purge
-module load comp-intel/2023.2.1
-module load mpi-hpe/mpt.2.30
+module load comp-intel
+module load mpi-hpe/mpt
 module load gcc/9.3
 module use -a /swbuild/analytix/tools/modulefiles
 module load miniconda3/v4
+
+export MPI_LAUNCH_TIMEOUT=600
 
 # Fix stack size issue
 ulimit -s unlimited

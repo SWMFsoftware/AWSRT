@@ -178,6 +178,12 @@ doubleconez0		StringShape
 24			Height
 8.7			Radius
 
+#REGION
+OuterShell              NameRegion
+shell0                  StringShape
+2.0                     RadiusInner
+24.0                    Radius
+
 #AMRREGION
 coneearth		NameRegion
 conex0 sat:earth		StringShape
@@ -250,7 +256,7 @@ T			UseLogRhoLimiter
 T			UseLogPLimiter
 F			UseRhoRatioLimiter
 
-#CONSERVATIVECRITERIA.           
+#CONSERVATIVECRITERIA           
 1                       nConservCrit
 r                       TypeConservCrit    
 2.0                     rConserv                  
